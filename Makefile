@@ -2,7 +2,7 @@ src = $(wildcard *.cpp)
 obj = $(src:.cpp=.o)
 
 lemsiedler: $(obj)
-	g++ -std=c++11 -o $@ $^ -lSDL
+	g++ -o $@ $^ -lSDL -lSDL_image
 	
 .PHONY: clean
 clean:

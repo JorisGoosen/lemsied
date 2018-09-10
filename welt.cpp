@@ -26,6 +26,6 @@ void welt::draw(int offsetX, int offsetY)
 			if(staggered)
 				drawY += STAGGERED_Y_OFFSET;
 			
-			_tegels.drawtile(_veld[x][y], drawX, drawY);
+			_tegels.drawtile(_veld[x][y], drawX - offsetX, drawY - offsetY);
 		}
 }

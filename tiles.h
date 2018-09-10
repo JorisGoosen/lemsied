@@ -7,7 +7,7 @@ typedef int tiletype;
 
 class tiles {
 public:
-	tiles(SDL_Surface * scherm);
+	tiles(SDL_Surface * scherm, const char * naam);
 	~tiles();
 	
 	SDL_Surface * surf() { return _tiles; }

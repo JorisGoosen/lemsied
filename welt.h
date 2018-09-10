@@ -4,6 +4,10 @@
 typedef std::vector<tiletype> tilecol;
 typedef std::vector<tilecol> tileplane;
 
+typedef std::vector<std::vector<std::vector<tiletype> * > > tilestacks;
+
+
+
 #define WELT_W 50
 #define WELT_H 50
 #define WELT_X_OFFSET ((TILEDIM / 4) * 3)
@@ -15,8 +19,11 @@ public:
 	welt(SDL_Surface * scherm);
 	
 	void draw(int offsetX=0, int offsetY=0);
+	
+	void addOverlay(int x, int y, tiletype tegel);
 		
 private:
-	tiles		_tegels;
+	tiles		_tegels;//, _water;
 	tileplane 	_veld;
+	tilestacks _overlay;
 };

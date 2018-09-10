@@ -2,12 +2,17 @@
 #include <SDL/SDL_image.h>
 #include "tiles.h"
 
-tiles::tiles(SDL_Surface * scherm) : _scherm(scherm)
+bool mustInitIMG = true;
+
+tiles::tiles(SDL_Surface * scherm, const char * naam) : _scherm(scherm)
 {
-	if(IMG_Init(IMG_INIT_PNG) == 0)
-		throw exceptioneel("img init failed\n");	
+	if(mustInitIMG)
+		if(IMG_Init(IMG_INIT_PNG) == 0)
+			throw exceptioneel("img init failed\n");	
+			
+	mustInitIMG = false;
 	
-	_tiles = IMG_Load("GridTiles.png");
+	_tiles = IMG_Load(naam);
 	
 	if(_tiles == NULL)
 		throw exceptioneel("tiles init failed\n");
@@ -16,8 +21,15 @@ tiles::tiles(SDL_Surface * scherm) : _scherm(scherm)
 
 void tiles::drawtile(tiletype tile, int x, int y, int w, int h)
 {
+	if(x > _scherm->w || y > _scherm->h || x + w < 0 || y + h < 0)
+		return;
+		
 	int hierX = tile * TILEDIM;
-	int hierY = ((hierX - (hierX % _tiles->w)) / _tiles->w) * TILEDIM;
+	int rij = ((hierX - (hierX % _tiles->w)) / _tiles->w);
+	int hierY =  rij * TILEDIM;
+	hierX = hierX % _tiles->w;
+
+	  
 	
 	SDL_Rect hier = {hierX, hierY, TILEDIM, TILEDIM};
 	SDL_Rect daar = {x, y, w, h};

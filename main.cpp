@@ -19,8 +19,8 @@ int main(int argnum, const char ** args)
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	scherm = SDL_SetVideoMode(800, 480, 32, SDL_FULLSCREEN); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,
-//	scherm = SDL_SetVideoMode(800, 440, 32, 0); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,
+//	scherm = SDL_SetVideoMode(800, 480, 32, SDL_FULLSCREEN); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,
+	scherm = SDL_SetVideoMode(800, 432, 32, 0); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,
 	if(scherm == NULL ) //|| (scherm->flags & SDL_DOUBLEBUF) == 0 || (scherm->flags & SDL_HWSURFACE) == 0) 
 	{
 		printf("no scherm //or doublebuf or hwsurf\n");
@@ -40,10 +40,10 @@ int main(int argnum, const char ** args)
 	
 	while(continueForever)
 	{
-		printf("gonna wait for event\n");
+		//printf("gonna wait for event\n");
 		int waitEvent = SDL_WaitEvent(&event);
 		
-		printf("found event! result was %d\n", waitEvent);
+		//printf("found event! result was %d\n", waitEvent);
 		
 		if(waitEvent < 1)
 		{
@@ -52,7 +52,7 @@ int main(int argnum, const char ** args)
 		}
 		else
 		{
-			printf("eventtype  = %d\n", event.type);
+			//printf("eventtype  = %d\n", event.type);
 			
 			if(event.type == SDL_KEYDOWN)
 			{
@@ -61,7 +61,7 @@ int main(int argnum, const char ** args)
 				int xmov = 10, ymov = xmov;
 				bool redraw = true;
 				
-				printf("keypressed: %d\n", key.keysym.sym);
+				//printf("keypressed: %d\n", key.keysym.sym);
 			
 				switch(key.keysym.sym)
 				{

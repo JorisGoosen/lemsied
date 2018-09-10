@@ -1,0 +1,7 @@
+*.diff
+*.patch
+*.orig
+*.o
+*~
+
+lemsiedler

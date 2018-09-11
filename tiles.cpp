@@ -4,7 +4,7 @@
 
 bool mustInitIMG = true;
 
-tiles::tiles(SDL_Surface * scherm, const char * naam) : _scherm(scherm)
+tiles::tiles(SDL_Surface * scherm) : _scherm(scherm)
 {
 	if(mustInitIMG)
 		if(IMG_Init(IMG_INIT_PNG) == 0)
@@ -12,10 +12,14 @@ tiles::tiles(SDL_Surface * scherm, const char * naam) : _scherm(scherm)
 			
 	mustInitIMG = false;
 	
-	_tiles = IMG_Load(naam);
+	_tiles 		= IMG_Load("GridTiles.png");
+	_lemming	= IMG_Load("Lemming.png");
 	
 	if(_tiles == NULL)
 		throw exceptioneel("tiles init failed\n");
+		
+	if(_lemming == NULL)
+		throw exceptioneel("lemming init failed\n");
 	
 }
 
@@ -35,7 +39,16 @@ void tiles::drawtile(tiletype tile, int x, int y, int w, int h)
 	SDL_Rect daar = {x, y, w, h};
 	
 	if(0 != SDL_BlitSurface(_tiles, &hier, _scherm, &daar))
-		throw exceptioneel("blit failed\n");
+		throw exceptioneel("tiles blit failed\n");
+}
+
+void tiles::drawLemmingFrame(int frame, int x, int y)
+{	
+	SDL_Rect hier = {frame * LEMW, 0, LEMW, LEMH};
+	SDL_Rect daar = {x, y, LEMW, LEMH};
+	
+	if(0 != SDL_BlitSurface(_lemming, &hier, _scherm, &daar))
+		throw exceptioneel("lemming blit failed\n");
 }
 
 tiles::~tiles()

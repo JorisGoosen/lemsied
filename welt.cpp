@@ -1,6 +1,6 @@
 #include "welt.h"
 
-welt::welt(SDL_Surface * scherm) : _tegels(scherm, "GridTiles.png")//, _water(scherm, "WaterGrid.png") 
+welt::welt(SDL_Surface * scherm) : _tegels(scherm)//, _water(scherm, "WaterGrid.png") 
 {
 	_veld.resize(WELT_W);
 	_overlay.resize(WELT_W);

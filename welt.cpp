@@ -1,4 +1,5 @@
 #include "welt.h"
+#include "lemming.h"
 
 welt::welt(SDL_Surface * scherm) : _tegels(scherm)//, _water(scherm, "WaterGrid.png") 
 {
@@ -44,6 +45,8 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm)//, _water(scherm, "WaterGrid.
 	addOverlay(1,3, 21);
 	addOverlay(2,4, 18);
 	addOverlay(2,4, 21);*/
+	
+	hank = new lemming(this);
 }
 
 void welt::addOverlay(int x, int y, tiletype tegel)
@@ -85,6 +88,7 @@ void welt::draw(int offsetX, int offsetY)
 				}			
 	}
 	
-	lemming hank(this);
-	_tegels.drawLemmingFrame(hank.getFrame(), hank.getWorldXOri(), hank.getWorldYOri());	
+//	lemming hank(this);
+	_tegels.drawLemmingFrame(hank->getFrame(), hank->getWorldXOri(), hank->getWorldYOri());	
+	hank->stepFrame();
 }

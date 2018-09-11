@@ -2,13 +2,21 @@
 #include <algorithm>
 #include "welt.h"
 
-std::map<lemVisualState, std::map<lemVisualState, lemAnim> > visualTransitions;
+lemming::lemming(welt * umwelt) : currentState(stilO), nextState(stilO), currentFrame(0), tileX(2), tileY(2),
+meinWelt(umwelt) 
+{
+	fillTransitions();
+	loadAnim();
+}
+
+
+static std::map<lemVisualState, std::map<lemVisualState, lemAnim> > visualTransitions;
 
 void addReverso(std::map<lemVisualState, std::map<lemVisualState, lemAnim> > & trans, lemVisualState keyA, lemVisualState keyB, lemAnim anim)
 {
 	lemAnim copy; // = trans[keyA][keyB];
 	
-	for(size_t i = anim.size() - 1; i>= 0; i--)
+	for(int i = anim.size() - 1; i>= 0; i--)
 		copy.push_back(anim[i]);
 	
 	trans[keyA][keyB] = anim;
@@ -54,3 +62,26 @@ void fillTransitions()
 int lemming::getWorldXOri() { return welt::xOri(tileX); }
 int lemming::getWorldYOri() { return welt::yOri(tileX, tileY); }
 
+void lemming::setCurrentFrame()
+{
+	currentFrame = currentAnim.size() <= currentAnimStep ? 0 : currentAnim[currentAnimStep];
+}
+
+void lemming::loadAnim()
+{
+	printf("there are %d vistransmaps and the requested %d one has %d\n", visualTransitions.size(), currentState, visualTransitions[currentState].size());
+	currentAnim = visualTransitions[currentState][nextState];
+	printf("loadad anim for lemming and its length= %d\n", currentAnim.size());
+	currentAnimStep = 0;
+	setCurrentFrame();
+}
+
+void lemming::stepFrame()
+{
+	currentAnimStep++;
+	if(currentAnimStep >= currentAnim.size())
+		currentAnimStep = 0;
+
+	setCurrentFrame();
+	
+}

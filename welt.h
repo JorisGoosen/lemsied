@@ -3,13 +3,12 @@
 
 #include "tiles.h"
 #include <vector>
-#include "lemming.h"
 
 typedef std::vector<tiletype> tilecol;
 typedef std::vector<tilecol> tileplane;
 
 typedef std::vector<std::vector<std::vector<tiletype> * > > tilestacks;
-
+ class lemming;
 
 
 #define WELT_W 50
@@ -33,5 +32,6 @@ private:
 	tiles		_tegels;//, _water;
 	tileplane 	_veld;
 	tilestacks _overlay;
+	lemming * hank;
 };
 #endif

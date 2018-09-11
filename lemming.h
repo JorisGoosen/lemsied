@@ -15,13 +15,15 @@ void fillTransitions();
 class lemming 
 {
 public:
-	lemming(welt * umwelt) : currentState(wacht), nextState(wacht), currentFrame(0), tileX(2), tileY(2),
-		meinWelt(umwelt) {}
-
+	lemming(welt * umwelt);
 	int getTileX() { return tileX; }
 	int getTileY() { return tileY; }
 	int getWorldXOri();
 	int getWorldYOri();
+	
+	void stepFrame();
+	void setCurrentFrame();
+	void loadAnim();
 	
 	lemFrame getFrame() { return currentFrame; }
 private:
@@ -29,6 +31,8 @@ private:
 	lemFrame currentFrame;
 	int tileX, tileY;
 	welt * meinWelt;
+	lemAnim currentAnim;
+	size_t currentAnimStep;
 };
 
 #endif

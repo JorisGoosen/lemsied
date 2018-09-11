@@ -54,6 +54,18 @@ void welt::addOverlay(int x, int y, tiletype tegel)
 	_overlay[x][y]->push_back(tegel);
 }
 
+int welt::yOri(int tileX, int tileY)
+{
+	bool staggered = tileX%2 == 1;
+
+	int drawY = (tileY * TILEDIM) / 2;
+
+	if(staggered)
+		drawY += STAGGERED_Y_OFFSET;
+		
+	return drawY;
+}
+
 void welt::draw(int offsetX, int offsetY)
 {
 	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)
@@ -61,14 +73,9 @@ void welt::draw(int offsetX, int offsetY)
 		for(int y=0; y < WELT_H; y++)
 			for(int xstart=0; xstart<2; xstart++) // de niet gestaggerede moeten eerst!
 				for(int x=xstart; x < WELT_W; x+=2)
-				{
-					bool staggered = x%2 == 1;
-			
-					int drawX = x * WELT_X_OFFSET;
-					int drawY = (y * TILEDIM) / 2;
-			
-					if(staggered)
-						drawY += STAGGERED_Y_OFFSET;
+				{			
+					int drawX = xOri(x);
+					int drawY = yOri(x, y);
 			
 					if(veldOverlay == 0)
 						_tegels.drawtile(_veld[x][y], drawX - offsetX, drawY - offsetY);
@@ -77,4 +84,7 @@ void welt::draw(int offsetX, int offsetY)
 							_tegels.drawtile((*_overlay[x][y])[overlay], drawX - offsetX, drawY - offsetY);
 				}			
 	}
+	
+	lemming hank(this);
+	_tegels.drawLemmingFrame(hank.getFrame(), hank.getWorldXOri(), hank.getWorldYOri());	
 }

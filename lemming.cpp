@@ -1,9 +1,8 @@
 #include "lemming.h"
 #include <algorithm>
+#include "welt.h"
 
-//enum class lemVisualState { wacht, stilO, stilRO, stilRB, stilLB, stilLO};
-
-//std::map<lemVisualState, std::map<lemVisualState, lemAnim> > visualTransitions;
+std::map<lemVisualState, std::map<lemVisualState, lemAnim> > visualTransitions;
 
 void addReverso(std::map<lemVisualState, std::map<lemVisualState, lemAnim> > & trans, lemVisualState keyA, lemVisualState keyB, lemAnim anim)
 {
@@ -51,3 +50,7 @@ void fillTransitions()
 	visualTransitions[stilLO][stilLO] = lemAnim(loopLO, loopLO + 12);
 	visualTransitions[stilLB][stilLB] = lemAnim(loopLB, loopLB + 12);	
 }
+
+int lemming::getWorldXOri() { return welt::xOri(tileX); }
+int lemming::getWorldYOri() { return welt::yOri(tileX, tileY); }
+

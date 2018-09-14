@@ -2,19 +2,22 @@
 #include <algorithm>
 #include "welt.h"
 
-lemming::lemming(welt * umwelt) : currentState(stilO), nextState(stilO), currentFrame(0), tileX(2), tileY(2),
+
+lemming::lemming(welt * umwelt) 
+	: 	currentState(wacht), nextState(wacht), 
+		currentFrame(0), tileX(2), tileY(2),
 meinWelt(umwelt) 
 {
+	myEvents = new eventList(meinWelt->mainEventList());
 	fillTransitions();
 	loadAnim();
 }
 
+transitieMap lemming::visualTransitions = transitieMap();
 
-static std::map<lemVisualState, std::map<lemVisualState, lemAnim> > visualTransitions;
-
-void addReverso(std::map<lemVisualState, std::map<lemVisualState, lemAnim> > & trans, lemVisualState keyA, lemVisualState keyB, lemAnim anim)
+void addReverso(transitieMap & trans, lemVisualState keyA, lemVisualState keyB, lemAnim anim)
 {
-	lemAnim copy; // = trans[keyA][keyB];
+	lemAnim copy;
 	
 	for(int i = anim.size() - 1; i>= 0; i--)
 		copy.push_back(anim[i]);
@@ -23,12 +26,25 @@ void addReverso(std::map<lemVisualState, std::map<lemVisualState, lemAnim> > & t
 	trans[keyB][keyA] = copy;
 }
 
-void fillTransitions()
+void combineAndAddReverso(transitieMap & trans, lemVisualState keyA, lemVisualState keyB, lemVisualState keyC)
 {
+	lemAnim A = trans[keyA][keyB];
+	lemAnim B = trans[keyB][keyC];
+	
+	for(int i=0; i<B.size(); i++)
+		A.push_back(B[i]);
+		
+	addReverso(trans, keyA, keyC, A);
+}
+
+void lemming::fillTransitions()
+{
+	if(visualTransitions.size() > 0)
+		return;
+		
 	size_t wachtO[] = { 0, 1, 2};
 
 	addReverso(visualTransitions, wacht, stilO, lemAnim(wachtO, wachtO + 3));
-	
 	
 	size_t oRo[]  = { 2,  3,  4};
 	size_t roRb[] = { 4,  5,  6};
@@ -44,7 +60,18 @@ void fillTransitions()
 	addReverso(visualTransitions, stilLB, stilLO, lemAnim(lbLo, lbLo + 3));
 	addReverso(visualTransitions, stilLO, stilO,  lemAnim(loO,  loO  + 3));
 	
-	size_t loopO[]  = {2,  16, 17, 18, 17, 16, 2,  21, 20, 16, 20, 21, 2};
+	combineAndAddReverso(visualTransitions, stilO,	stilRO, stilRB);
+	combineAndAddReverso(visualTransitions, stilRO, stilRB, stilB);
+	combineAndAddReverso(visualTransitions, stilRB, stilB,  stilLB);
+	combineAndAddReverso(visualTransitions, stilB,  stilLB, stilLO);
+	combineAndAddReverso(visualTransitions, stilLB, stilLO, stilO);
+	combineAndAddReverso(visualTransitions, stilLO, stilO,  stilB);
+	
+	combineAndAddReverso(visualTransitions, stilO,  stilRB, stilB);
+	combineAndAddReverso(visualTransitions, stilRO, stilB, stilLB);
+	combineAndAddReverso(visualTransitions, stilRB, stilLB, stilLO);
+	
+	size_t loopO[]  = {2,  16, 17, 18, 17, 16, 2,  21, 20, 19, 20, 21, 2};
 	size_t loopB[]  = {9,  22, 23, 24, 23, 22, 9,  27, 26, 25 ,26, 27, 9};
 	size_t loopRB[] = {6,  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 6};
 	size_t loopRO[] = {4,  28, 29, 30, 31, 32, 33, 34, 35, 37, 4};
@@ -69,9 +96,9 @@ void lemming::setCurrentFrame()
 
 void lemming::loadAnim()
 {
-	printf("there are %d vistransmaps and the requested %d one has %d\n", visualTransitions.size(), currentState, visualTransitions[currentState].size());
+	//printf("there are %d vistransmaps and the requested %d one has %d\n", visualTransitions.size(), currentState, visualTransitions[currentState].size());
 	currentAnim = visualTransitions[currentState][nextState];
-	printf("loadad anim for lemming and its length= %d\n", currentAnim.size());
+	//printf("loadad anim for lemming and its length= %d\n", currentAnim.size());
 	currentAnimStep = 0;
 	setCurrentFrame();
 }
@@ -80,8 +107,47 @@ void lemming::stepFrame()
 {
 	currentAnimStep++;
 	if(currentAnimStep >= currentAnim.size())
-		currentAnimStep = 0;
+	{
+		lemVisualState st = nextState;
+		nextState = currentState;
+		currentState = st;
+		
+		loadAnim();
+	}
+
 
 	setCurrentFrame();
 	
 }
+
+void lemming::drawYourself()
+{
+	meinWelt->drawLemmingFrame(currentFrame, tileX, tileY);
+}
+
+void lemming::stateChanged(lemVisualState newState)
+{
+	currentState 	= nextState;
+	nextState 		= newState;
+	
+	loadAnim();
+}
+
+void lemming::posChanged(int newTileX, int newTileY)
+{
+	tileX = newTileX;
+	tileY = newTileY;
+}
+
+
+void stateChangedEvent::activate() 
+{ 
+	actor->stateChanged(state); 
+}
+
+
+void positionChangedEvent::activate() 
+{ 
+	actor->posChanged(tileX, tileY); 
+}
+

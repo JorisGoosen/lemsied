@@ -1,7 +1,7 @@
 #include "welt.h"
 #include "lemming.h"
 
-welt::welt(SDL_Surface * scherm) : _tegels(scherm)//, _water(scherm, "WaterGrid.png") 
+welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0) 
 {
 	_veld.resize(WELT_W);
 	_overlay.resize(WELT_W);
@@ -34,19 +34,39 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm)//, _water(scherm, "WaterGrid.
 			
 		}
 	}
-	
-	//water= 16 rb 17 b 18 lb 19 lo 20 o 21 ro
-	/*
-	addOverlay(1,1, 16);
-	addOverlay(1,1, 20);
-	addOverlay(1,2, 17);
-	addOverlay(1,2, 20);
-	addOverlay(1,3, 17);
-	addOverlay(1,3, 21);
-	addOverlay(2,4, 18);
-	addOverlay(2,4, 21);*/
-	
+		
 	hank = new lemming(this);
+	
+	theEvents.addEvent(new positionChangedEvent(1, hank, 2, 3));
+	
+	for(double tijd = 2; tijd<30; tijd+=3)
+	{
+		theEvents.addEvent(new stateChangedEvent(tijd, 			hank, stilLO));
+		theEvents.addEvent(new stateChangedEvent(tijd + 0.5, 	hank, stilLB));
+		theEvents.addEvent(new stateChangedEvent(tijd + 1.0, 	hank, stilB));
+		theEvents.addEvent(new stateChangedEvent(tijd + 1.5, 	hank, stilRB));
+		theEvents.addEvent(new stateChangedEvent(tijd + 2.0, 	hank, stilRO));
+		theEvents.addEvent(new stateChangedEvent(tijd + 2.5, 	hank, stilO));
+	}
+	
+	for(double tijd = 32; tijd<60; tijd+=3)
+	{
+		theEvents.addEvent(new stateChangedEvent(tijd, 			hank, stilRO));
+//		theEvents.addEvent(new stateChangedEvent(tijd + 0.5, 	hank, stilRB));
+//		theEvents.addEvent(new stateChangedEvent(tijd + 1.0, 	hank, stilB));
+		theEvents.addEvent(new stateChangedEvent(tijd + 1.5, 	hank, stilLB));
+		theEvents.addEvent(new stateChangedEvent(tijd + 2.0, 	hank, stilLO));
+		theEvents.addEvent(new stateChangedEvent(tijd + 2.5, 	hank, stilO));
+	}
+	
+	theEvents.addEvent(new stateChangedEvent(63, 	hank, stilO));
+	
+	theEvents.addEvent(new positionChangedEvent(2, hank, 2, 4));
+	
+	theEvents.addEvent(new positionChangedEvent(3, hank, 3, 4));
+	theEvents.addEvent(new positionChangedEvent(4, hank, 3, 5));
+	
+	printf("events done\n");
 }
 
 void welt::addOverlay(int x, int y, tiletype tegel)
@@ -69,7 +89,7 @@ int welt::yOri(int tileX, int tileY)
 	return drawY;
 }
 
-void welt::draw(int offsetX, int offsetY)
+void welt::draw()
 {
 	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)
 	{
@@ -89,6 +109,13 @@ void welt::draw(int offsetX, int offsetY)
 	}
 	
 //	lemming hank(this);
-	_tegels.drawLemmingFrame(hank->getFrame(), hank->getWorldXOri(), hank->getWorldYOri());	
+	hank->drawYourself();
 	hank->stepFrame();
+}
+
+void welt::drawLemmingFrame(int frame, int tileX, int tileY)
+{
+	_tegels.drawLemmingFrame(frame, 
+		xOri(tileX) + ((TILEDIM - LEMW) / 2) - offsetX, 
+		yOri(tileX, tileY) + ((TILEDIM - LEMH) / 2) - offsetY);
 }

@@ -1,16 +1,17 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include "welt.h"
+#include <bits/time.h>
 
 welt * wereld;
 SDL_Surface * scherm;
 
-int offsetX = 0, offsetY = 0;
+#define TIMESTEP 0.05
 
 void drawwelt()
 {
 	SDL_FillRect(scherm, NULL, SDL_MapRGBA(scherm->format, 0, 0, 0, 255));
-	wereld->draw(offsetX, offsetY);
+	wereld->draw();
 
 	SDL_UpdateRect(scherm, 0, 0, 0, 0);
 }
@@ -40,46 +41,32 @@ int main(int argnum, const char ** args)
 	
 	while(continueForever)
 	{
-		//printf("gonna wait for event\n");
-		int waitEvent = SDL_WaitEvent(&event);
+		int pollEvent = SDL_PollEvent(&event);
 		
-		//printf("found event! result was %d\n", waitEvent);
-		
-		if(waitEvent < 1)
-		{
-			printf("there was some kind of error waiting for event...\n");
-			continueForever = false;
-		}
-		else
-		{
-			//printf("eventtype  = %d\n", event.type);
-			
+		if(pollEvent == 1)
+		{	
 			if(event.type == SDL_KEYDOWN)
 			{
 				SDL_KeyboardEvent key = event.key;
 			
 				int xmov = 10, ymov = xmov;
-				bool redraw = true;
 				
-				//printf("keypressed: %d\n", key.keysym.sym);
-			
 				switch(key.keysym.sym)
 				{
-				case SDLK_UP:		offsetY -= ymov;	break;
-				case SDLK_DOWN:		offsetY += ymov;	break;
-				case SDLK_LEFT:		offsetX -= xmov;	break;
-				case SDLK_RIGHT:	offsetX += xmov;	break;
-				default:
-					redraw = false;
-					continueForever = false;
-					break;
+				case SDLK_UP:		wereld->moveView(0,	-ymov);	break;
+				case SDLK_DOWN:		wereld->moveView(0,	 ymov);	break;
+				case SDLK_LEFT:		wereld->moveView(-xmov, 0);	break;
+				case SDLK_RIGHT:	wereld->moveView( xmov, 0);	break;
 				
+				default:			continueForever = false;	break;
 				}
-			
-				if(redraw)
-					drawwelt();
 			}
 		}
+		
+		usleep(1000000 * TIMESTEP);
+		wereld->stepTime(TIMESTEP);
+		drawwelt();
+
 	}
 
 	SDL_Quit();	

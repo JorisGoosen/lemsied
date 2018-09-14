@@ -1,8 +1,9 @@
-#ifndef WELT_H
-#define WELT_H
+#ifndef WELT_HEADER
+#define WELT_HEADER
 
 #include "tiles.h"
 #include <vector>
+#include "events.h"
 
 typedef std::vector<tiletype> tilecol;
 typedef std::vector<tilecol> tileplane;
@@ -21,17 +22,26 @@ class welt
 public:
 	welt(SDL_Surface * scherm);
 	
-	void draw(int offsetX=0, int offsetY=0);
+	void draw();
 	
 	void addOverlay(int x, int y, tiletype tegel);
 	
 	static int xOri(int tileX) 				{ return tileX * WELT_X_OFFSET; }
 	static int yOri(int tileX, int tileY);
+	
+	void drawLemmingFrame(int frame, int tileX, int tileY);
+	
+	void moveView(int X, int Y) { offsetX += X; offsetY += Y;}
+	void stepTime(double timeStep = 0.2) { theEvents.increaseTimeBy(timeStep); }
+	
+	eventList * mainEventList() { return &theEvents; }
 		
 private:
+	eventList	theEvents;
 	tiles		_tegels;//, _water;
 	tileplane 	_veld;
-	tilestacks _overlay;
-	lemming * hank;
+	tilestacks 	_overlay;
+	lemming 	*hank;
+	int 		offsetX, offsetY;
 };
 #endif

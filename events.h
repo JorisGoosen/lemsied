@@ -49,4 +49,5 @@ private:
 	
 	std::list<std::pair<double, event *> > events;
 };
+
 #endif

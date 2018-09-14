@@ -4,6 +4,7 @@
 #include "tiles.h"
 #include <vector>
 #include "events.h"
+#include "lempos.h"
 
 typedef std::vector<tiletype> tilecol;
 typedef std::vector<tilecol> tileplane;
@@ -21,6 +22,7 @@ double randomDouble(double min, double max);
 #define WELT_X_OFFSET ((TILEDIM / 4) * 3)
 #define STAGGERED_Y_OFFSET (TILEDIM / 4)
 
+
 class welt
 {
 public:
@@ -30,11 +32,7 @@ public:
 	
 	void addOverlay(int x, int y, tiletype tegel);
 	
-	static int xOri(int tileX) 				{ return tileX * WELT_X_OFFSET; }
-	static int yOri(int tileX, int tileY);
-	static bool xStaggeredDown(int tileX) { return tileX % 2 == 1; }
-	
-	void drawLemmingFrameInTile(int frame, int tileX, int tileY);
+	void drawLemmingFrameInTile(int frame, lemPos p);
 	void drawLemmingFrame(int frame, int pixelX, int pixelY);
 	
 	void moveView(int X, int Y) { offsetX += X; offsetY += Y;}
@@ -45,14 +43,19 @@ public:
 	static int validateX(int x) { return std::max(0, std::min(WELT_W - 1, x)); }
 	static int validateY(int y) { return std::max(0, std::min(WELT_H - 1, y)); }
 	
-	static int xLem(int tileX) 				{ return xOri(tileX) + ((TILEDIM - LEMW) / 2); }
-	static int yLem(int tileX, int tileY)  	{ return yOri(tileX, tileY) + ((TILEDIM - LEMH) / 2); }
+	static int xLem(lemPos p)	{ return xOri(p) + ((TILEDIM - LEMW) / 2); }
+	static int yLem(lemPos p)  	{ return yOri(p) + ((TILEDIM - LEMH) / 2); }
 	
-	void registerLemPos(lemming * lem, int x, int y);
-	lemming * lemAt(int x, int y); 
-	bool landFree(int x, int y);
+	void 		registerLemPos(lemming * lem, lemPos p);
+	lemming * 	lemAt(lemPos p); 
+	bool 		landFree(lemPos p);
+	lemPos		getPosInDir(lemPos p, lemDir d, lemVisualState * naDraaiVis = NULL);
+	
+	static int xOri(lemPos p) 	{ return p.x * WELT_X_OFFSET; }
+	static int yOri(lemPos p);
 		
 private:
+	static bool xStaggeredDown(int tileX) { return tileX % 2 == 1; }
 	eventList	theEvents;
 	tiles		_tegels;//, _water;
 	tileplane 	_veld;

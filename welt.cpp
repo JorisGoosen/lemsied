@@ -50,7 +50,7 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 		}
 	}
 
-	for(int i=0; i<12; i++)		
+	for(int i=0; i<40; i++)		
 		_lemmings.push_back(new lemming(this));
 }
 
@@ -64,9 +64,9 @@ void welt::addOverlay(int x, int y, tiletype tegel)
 
 
 
-int welt::yOri(int tileX, int tileY)
+int welt::yOri(lemPos p)
 {
-	return (tileY * TILEDIM) / 2 + (xStaggeredDown(tileX) ? STAGGERED_Y_OFFSET : 0 );
+	return (p.y * TILEDIM) / 2 + (xStaggeredDown(p.x) ? STAGGERED_Y_OFFSET : 0 );
 }
 
 void welt::draw()
@@ -80,17 +80,18 @@ void welt::draw()
 			for(int xstart=0; xstart<2; xstart++) // de niet gestaggerede moeten eerst!
 				for(int x=xstart; x < WELT_W; x+=2)
 				{			
-				
+					lemPos p(x, y);
+					
 					if(veldOverlay == 1)
 					{
 						lemming * lem = _lemVeld[x][y];
-						if(lem != NULL && lem->isPos(x, y))
+						if(lem != NULL && lem->isPos(p))
 							lem->drawYourself();
 						
 					}
 				
-					int drawX = xOri(x);
-					int drawY = yOri(x, y);
+					int drawX = xOri(p);
+					int drawY = yOri(p);
 			
 					if(veldOverlay == 0)
 						_tegels.drawtile(_veld[x][y], drawX - offsetX, drawY - offsetY);
@@ -105,9 +106,9 @@ void welt::draw()
 
 }
 
-void welt::drawLemmingFrameInTile(int frame, int tileX, int tileY)
+void welt::drawLemmingFrameInTile(int frame, lemPos p)
 {
-	drawLemmingFrame(frame, xLem(tileX), yLem(tileX, tileY));
+	drawLemmingFrame(frame, xLem(p), yLem(p));
 }
 
 void welt::drawLemmingFrame(int frame, int actualX, int actualY)
@@ -117,25 +118,53 @@ void welt::drawLemmingFrame(int frame, int actualX, int actualY)
 		actualY - offsetY);
 }
 
-void welt::registerLemPos(lemming * lem, int x, int y)
+void welt::registerLemPos(lemming * lem, lemPos p)
 {
-	if(_lemVeld[x][y] != NULL && lem != NULL)
+	if(_lemVeld[p.x][p.y] != NULL && lem != NULL)
 	{
-		if(lem != _lemVeld[x][y])
+		if(lem != _lemVeld[p.x][p.y])
 			throw exceptioneel("lemming tries to register itself where somebody is already registered..");
 	}
 
-	_lemVeld[x][y] = lem;
+	_lemVeld[p.x][p.y] = lem;
 	
 	
 }
 
-lemming * welt::lemAt(int x, int y)
+lemming * welt::lemAt(lemPos p)
 {
-	return _lemVeld[x][y];
+	return _lemVeld[p.x][p.y];
 }
 
-bool welt::landFree(int x, int y)
+bool welt::landFree(lemPos p)
 {
-	return _overlay[x][y] == NULL && _veld[x][y] != 3;
+	return _overlay[p.x][p.y] == NULL && _veld[p.x][p.y] != 3;
+}
+
+lemPos welt::getPosInDir(lemPos p, lemDir d, lemVisualState * naDraaiVisP)
+{
+	bool downStag = welt::xStaggeredDown(p.x);
+	
+	int newX = p.x, newY = p.y;
+	
+	lemVisualState naDraaiVis;
+	
+	switch(d)
+	{
+	default:
+	case Onder: 		naDraaiVis = stilO;								newY++;	break;
+	case RechtsOnder: 	naDraaiVis = stilRO;	newX++;	if( downStag)	newY++;	break;
+	case RechtsBoven: 	naDraaiVis = stilRB;	newX++;	if(!downStag)	newY--;	break;
+	case Boven: 		naDraaiVis = stilB;								newY--;	break;
+	case LinksBoven: 	naDraaiVis = stilLB;	newX--;	if(!downStag)	newY--;	break;
+	case LinksOnder: 	naDraaiVis = stilLO;	newX--;	if( downStag)	newY++;	break;
+	}
+	
+	newX = welt::validateX(newX);
+	newY = welt::validateY(newY);
+	
+	if(naDraaiVisP != NULL)
+		(*naDraaiVisP) = naDraaiVis;
+	
+	return lemPos(newX, newY);
 }

@@ -60,7 +60,8 @@ eventListNode * eventListNode::removeNode(event * thisEvent, bool deleteEvent)
 		
 	if(thisEvent == theEvent)
 	{
-		next->prev = NULL;
+		if(next != NULL)
+			next->prev = NULL;
 		
 		eventListNode * returnThis = next;
 		
@@ -95,39 +96,96 @@ void eventListNode::destroyPrevious()
 	prev = NULL;
 }
 
-void eventList::addEvent(event * newEvent)
+void eventList::addEvent(event * newEvent, eventList * actualParent)
 {
-	eventListNode * node = new eventListNode(this, newEvent);
+	if(newEvent->time <= time())
+	{
+//		printf("cannot add events in past! Setting eventtime (%f) to curtime+epsilon(%f).\n", newEvent->time, time()+EPSILON);
+		newEvent->time = time() + EPSILON;
+	}
+	eventListNode * node = new eventListNode(actualParent, newEvent);
 	
-	listHead = listHead == NULL ? node : listHead->insertNode(node);
+	
+	if(listHead == NULL)
+	{
+		listHead = node;
+		
+		if(mainList != NULL)
+			mainList->addEvent(newEvent, actualParent);
+	}
+	else
+	{
+		eventListNode * oldHead = listHead;
+		
+		listHead = listHead->insertNode(node);
+		
+		if(mainList != NULL && listHead != oldHead)
+		{
+			mainList->removeNode(oldHead->theEvent);
+			mainList->addEvent(listHead->theEvent);
+		}
+	}
+	
+	
+}
+
+bool eventList::isEventFirst(event *thisEvent)
+{
+	return listHead != NULL && listHead->theEvent == thisEvent;
 }
 
 void eventList::increaseTimeBy(double timeStep)
 {
 	double endTime = curTime + timeStep;
 	
+	printf(".");
+	
 	while(listHead != NULL && listHead->time() < endTime)
 	{
-		curTime = listHead->time();
-		listHead->theEvent->activate();
+		curTime 				= listHead->time();	
+		event * curEvent 		= listHead->theEvent;
+		event * addEventLater 	= NULL;
+		eventList * lemmingList = listHead->parent;
 		
-		if(listHead->next == NULL)
+		printf("executing event (%s) at %f\n", curEvent->identifier.c_str(), curTime);
+		
+		curEvent->activate();
+		
+		if(listHead->parent != NULL && listHead->parent != this)
 		{
-			delete listHead;
-			listHead = NULL;
+			//printf("Getting next event from lemminglist!\n");
+	
+			if(!lemmingList->isEventFirst(curEvent))
+				throw exceptioneel("event was not first event of lemming!");
+			
+			lemmingList->removeNode(curEvent);
+			
+			if(lemmingList->listHead != NULL)
+				addEventLater = lemmingList->listHead->theEvent;
 		}
-		else
-		{
-			listHead = listHead->next;
-			listHead->destroyPrevious();
-		}
+			
+		eventListNode * deleteMe	= listHead;
+		listHead					= listHead->next;
+	
+		delete deleteMe;	
+		
+		if(addEventLater != NULL)
+			addEvent(addEventLater, lemmingList);
 	}
 	
 	curTime = endTime;
 }
 
-void eventList::removeNode(event * thisEvent, bool deleteEvent = false) 
+void eventList::removeNode(event * thisEvent, bool deleteEvent) 
 { 
 	if(listHead) 
 		listHead = listHead->removeNode(thisEvent, deleteEvent); 
+}
+
+double eventList::time() 
+{ 
+	double t = mainList == NULL ? curTime : mainList->time(); 
+//	printf("time requested: %f\n", t);
+	
+	return t;	
 }

@@ -28,6 +28,7 @@ public:
 	
 	static int xOri(int tileX) 				{ return tileX * WELT_X_OFFSET; }
 	static int yOri(int tileX, int tileY);
+	static bool xStaggeredDown(int tileX) { return tileX % 2 == 1; }
 	
 	void drawLemmingFrame(int frame, int tileX, int tileY);
 	

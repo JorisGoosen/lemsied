@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <string>
 
+#define EPSILON 0.00000000001
+
 struct event
 {
 	event(double time, std::string identifier) : time(time), identifier(identifier) {}
@@ -45,9 +47,14 @@ class eventList
 public:
 	eventList(eventList * mainList = NULL) : curTime(0), listHead(NULL), mainList(mainList) {}
 	
-	void addEvent(event * newEvent);
+	
+	void addEvent(event * newEvent, eventList * parent);
+	void addEvent(event * newEvent) { addEvent(newEvent, this);	}
 	void increaseTimeBy(double timeStep);
-	void removeNode(event * thisEvent, bool deleteEvent);
+	void removeNode(event * thisEvent, bool deleteEvent = false);
+	bool isEventFirst(event *thisEvent);
+	
+	double time();
 	
 private:
 	double 			curTime;

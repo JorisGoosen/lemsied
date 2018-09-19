@@ -36,37 +36,6 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 	}
 		
 	hank = new lemming(this);
-	
-	theEvents.addEvent(new positionChangedEvent(1, hank, 2, 3));
-	
-	for(double tijd = 2; tijd<30; tijd+=3)
-	{
-		theEvents.addEvent(new stateChangedEvent(tijd, 			hank, stilLO));
-		theEvents.addEvent(new stateChangedEvent(tijd + 0.5, 	hank, stilLB));
-		theEvents.addEvent(new stateChangedEvent(tijd + 1.0, 	hank, stilB));
-		theEvents.addEvent(new stateChangedEvent(tijd + 1.5, 	hank, stilRB));
-		theEvents.addEvent(new stateChangedEvent(tijd + 2.0, 	hank, stilRO));
-		theEvents.addEvent(new stateChangedEvent(tijd + 2.5, 	hank, stilO));
-	}
-	
-	for(double tijd = 32; tijd<60; tijd+=3)
-	{
-		theEvents.addEvent(new stateChangedEvent(tijd, 			hank, stilRO));
-//		theEvents.addEvent(new stateChangedEvent(tijd + 0.5, 	hank, stilRB));
-//		theEvents.addEvent(new stateChangedEvent(tijd + 1.0, 	hank, stilB));
-		theEvents.addEvent(new stateChangedEvent(tijd + 1.5, 	hank, stilLB));
-		theEvents.addEvent(new stateChangedEvent(tijd + 2.0, 	hank, stilLO));
-		theEvents.addEvent(new stateChangedEvent(tijd + 2.5, 	hank, stilO));
-	}
-	
-	theEvents.addEvent(new stateChangedEvent(63, 	hank, stilO));
-	
-	theEvents.addEvent(new positionChangedEvent(2, hank, 2, 4));
-	
-	theEvents.addEvent(new positionChangedEvent(3, hank, 3, 4));
-	theEvents.addEvent(new positionChangedEvent(4, hank, 3, 5));
-	
-	printf("events done\n");
 }
 
 void welt::addOverlay(int x, int y, tiletype tegel)
@@ -77,16 +46,11 @@ void welt::addOverlay(int x, int y, tiletype tegel)
 	_overlay[x][y]->push_back(tegel);
 }
 
+
+
 int welt::yOri(int tileX, int tileY)
 {
-	bool staggered = tileX%2 == 1;
-
-	int drawY = (tileY * TILEDIM) / 2;
-
-	if(staggered)
-		drawY += STAGGERED_Y_OFFSET;
-		
-	return drawY;
+	return (tileY * TILEDIM) / 2 + (xStaggeredDown(tileX) ? STAGGERED_Y_OFFSET : 0 );
 }
 
 void welt::draw()

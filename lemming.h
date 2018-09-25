@@ -12,7 +12,10 @@ enum lemVisualState { wacht, stilO, stilRO, stilRB, stilB, stilLB, stilLO};
 enum lemState		{ neutraal, loop, draai };
 typedef std::map<lemVisualState, std::map<lemVisualState, lemAnim> > transitieMap;
 
-
+inline double mix(double A, double B, double ratio)
+{
+	return (A * (1.0 - ratio)) + (B * ratio);
+}
 
 class lemming 
 {
@@ -34,13 +37,14 @@ public:
 	
 	void stateChanged(lemVisualState newState);
 	void posChanged(int newTileX, int newTileY);
-	void consider() { beweeg(Onder); }
+	void consider() { beweeg(static_cast<lemDir>(rand()%6)); }
 	
 	bool beweeg(lemDir richting);
 	int	 getFrameCountAnim(lemVisualState A, lemVisualState B) { return visualTransitions[A][B].size(); }
 	
 private:
 	static transitieMap visualTransitions;
+	eventList 		*myEvents;
 	lemVisualState 	currentState, 
 					nextState;
 	lemFrame 		currentFrame;
@@ -49,8 +53,10 @@ private:
 	welt 			*meinWelt;
 	lemAnim 		currentAnim;
 	size_t 			currentAnimStep;
-	eventList 		*myEvents;
-	double			moveTimeBegin, moveTimeDuration;
+	
+	double			moveTimeBegin, 	moveTimeDuration, 
+					oriActualX, 	oriActualY,
+					newActualX,		newActualY;
 	lemState		toestand;
 	
 };

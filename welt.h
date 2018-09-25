@@ -30,19 +30,28 @@ public:
 	static int yOri(int tileX, int tileY);
 	static bool xStaggeredDown(int tileX) { return tileX % 2 == 1; }
 	
-	void drawLemmingFrame(int frame, int tileX, int tileY);
+	void drawLemmingFrameInTile(int frame, int tileX, int tileY);
+	void drawLemmingFrame(int frame, int pixelX, int pixelY);
 	
 	void moveView(int X, int Y) { offsetX += X; offsetY += Y;}
 	void stepTime(double timeStep = 0.2) { theEvents.increaseTimeBy(timeStep); }
 	
 	eventList * mainEventList() { return &theEvents; }
+	
+	static int validateX(int x) { return std::max(0, std::min(WELT_W - 1, x)); }
+	static int validateY(int y) { return std::max(0, std::min(WELT_H - 1, y)); }
+	
+	static int xLem(int tileX) 				{ return xOri(tileX) + ((TILEDIM - LEMW) / 2); }
+	static int yLem(int tileX, int tileY)  	{ return yOri(tileX, tileY) + ((TILEDIM - LEMH) / 2); }
 		
 private:
 	eventList	theEvents;
 	tiles		_tegels;//, _water;
 	tileplane 	_veld;
 	tilestacks 	_overlay;
-	lemming 	*hank;
+	
+	std::vector<lemming*> hanks; 
+	
 	int 		offsetX, offsetY;
 };
 #endif

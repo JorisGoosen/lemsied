@@ -4,7 +4,7 @@
 
 struct exceptioneel
 {
-	exceptioneel(std::string str) : msg(str) {}
+	exceptioneel(std::string str) : msg(str+"\n") {}
 
 	const char * what() { return msg.c_str(); }
 		

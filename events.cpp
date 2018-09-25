@@ -1,5 +1,19 @@
 #include "events.h"
 #include "exceptioneel.h"
+#include <iostream>
+#include <sstream>
+
+std::string event::toString() 
+{ 
+	std::stringstream out;
+
+	if(this == NULL)
+		out << "NULL";
+	else
+		out << "event "<< identifier << " at t " << time << "("<<this<<")";
+	return out.str();
+	
+}
 
 void eventListNode::setNext(eventListNode *newNext)
 {
@@ -18,7 +32,10 @@ void eventListNode::setNext(eventListNode *newNext)
 eventListNode * eventListNode::insertNode(eventListNode * other)
 {
 	if(prev != NULL)
+	{
+		printf("error insert prev = %s at %f\ncurlist=%s\n", prev->identifier().c_str(), prev->time(), allToString().c_str());
 		throw exceptioneel("should only insert stuff at root of eventlist!");
+	}
 		
 	if(other->time() < time())
 	{
@@ -55,20 +72,21 @@ eventListNode::~eventListNode()
 
 eventListNode * eventListNode::removeNode(event * thisEvent, bool deleteEvent)
 {
+	printf("removeNode %s from list: %s", toString().c_str(), allToString().c_str());
+
 	if(prev != NULL)
 		throw exceptioneel("should only remove stuff at root of eventlist!");
 		
 	if(thisEvent == theEvent)
-	{
-		if(next != NULL)
-			next->prev = NULL;
-		
+	{		
 		eventListNode * returnThis = next;
 		
 		if(!deleteEvent)
 			theEvent = NULL;
 		
 		delete this;
+		
+		printf("just deleted myself and for listhead will return: %s\n", returnThis->toString().c_str());
 			
 		return returnThis;
 	}
@@ -77,12 +95,16 @@ eventListNode * eventListNode::removeNode(event * thisEvent, bool deleteEvent)
 	for(eventListNode * cur = next; cur != NULL; cur = cur->next)
 		if(cur->theEvent == thisEvent)
 		{
+			printf("will delete: %s\n", cur->toString().c_str());
+			
 			if(!deleteEvent)
 				cur->theEvent = NULL;
 				
 			delete cur;
 			break;
 		}
+		
+	printf("will return as listhead me: %s\n", toString().c_str());
 	
 	return this;
 }
@@ -96,18 +118,51 @@ void eventListNode::destroyPrevious()
 	prev = NULL;
 }
 
+std::string eventListNode::toString()
+{ 
+	if(this == NULL)
+		return "NULL";
+	return theEvent->toString() + "-node"; 
+}
+
+std::string eventListNode::allToString()
+{
+	if(this == NULL)
+		return "NULL";
+		
+	std::stringstream out;
+	
+	if(prev != NULL)
+	{
+		out << "not first node! rewinding.... start: " << toString() << "\n";	
+		out << prev->allToString();
+		return out.str();
+	}
+	
+	for(eventListNode * n = this; n != NULL; n = n->next)
+		out << n->toString() << " -> ";
+
+	out << "\n--------------------------------------\n";	
+	return out.str();
+}
+
 void eventList::addEvent(event * newEvent, eventList * actualParent)
 {
-	if(newEvent->time <= time())
+	printf("addEvent %s on time %f and mainList is %s!\n", newEvent->identifier.c_str(), newEvent->time, mainList == NULL ? "NULL" : "not NULL");
+	printf("pre list= %s \n", listHead->allToString().c_str());
+	
+	if(newEvent->time < time())
 	{
-//		printf("cannot add events in past! Setting eventtime (%f) to curtime+epsilon(%f).\n", newEvent->time, time()+EPSILON);
+		printf("cannot add events in past! Setting eventtime (%f) to curtime+epsilon(%f).\n", newEvent->time, time()+EPSILON);
 		newEvent->time = time() + EPSILON;
 	}
+	
 	eventListNode * node = new eventListNode(actualParent, newEvent);
 	
 	
 	if(listHead == NULL)
 	{
+	 	printf("listHead == NULL\n");
 		listHead = node;
 		
 		if(mainList != NULL)
@@ -115,18 +170,21 @@ void eventList::addEvent(event * newEvent, eventList * actualParent)
 	}
 	else
 	{
-		eventListNode * oldHead = listHead;
+		printf("listHead == %s at %f!\n", listHead->identifier().c_str(), listHead->time());
 		
+		eventListNode * oldHead = listHead;
+				
 		listHead = listHead->insertNode(node);
 		
 		if(mainList != NULL && listHead != oldHead)
 		{
+			//printf("if(mainList != NULL && listHead != oldHead)\n");
 			mainList->removeNode(oldHead->theEvent);
 			mainList->addEvent(listHead->theEvent);
 		}
 	}
 	
-	
+	printf("post list= %s \n", listHead->allToString().c_str());
 }
 
 bool eventList::isEventFirst(event *thisEvent)
@@ -138,7 +196,11 @@ void eventList::increaseTimeBy(double timeStep)
 {
 	double endTime = curTime + timeStep;
 	
-	printf(".");
+	printf("(%f)", curTime);
+	/*if(listHead == NULL)
+		printf(" listhead == NULL\n");
+	else
+		printf(" listHead->time == %f\n", listHead->time());*/
 	
 	while(listHead != NULL && listHead->time() < endTime)
 	{
@@ -147,13 +209,9 @@ void eventList::increaseTimeBy(double timeStep)
 		event * addEventLater 	= NULL;
 		eventList * lemmingList = listHead->parent;
 		
-		printf("executing event (%s) at %f\n", curEvent->identifier.c_str(), curTime);
-		
-		curEvent->activate();
-		
 		if(listHead->parent != NULL && listHead->parent != this)
 		{
-			//printf("Getting next event from lemminglist!\n");
+			printf("Getting next event from lemminglist!\n");
 	
 			if(!lemmingList->isEventFirst(curEvent))
 				throw exceptioneel("event was not first event of lemming!");
@@ -161,16 +219,25 @@ void eventList::increaseTimeBy(double timeStep)
 			lemmingList->removeNode(curEvent);
 			
 			if(lemmingList->listHead != NULL)
+			{
 				addEventLater = lemmingList->listHead->theEvent;
+				std::cout << "remembering event from lemming to add to mainlist later: " << addEventLater->toString() << "\n"<< std::flush;
+			}
+				
 		}
 			
-		eventListNode * deleteMe	= listHead;
-		listHead					= listHead->next;
-	
-		delete deleteMe;	
+		removeNode(curEvent);
 		
 		if(addEventLater != NULL)
+		{
+			printf("Gonna add next event %s for %f\n", addEventLater->identifier.c_str(), addEventLater->time);
 			addEvent(addEventLater, lemmingList);
+		}
+			
+		printf("executing event (%s) at %f\n", curEvent->identifier.c_str(), curTime);
+		
+		curEvent->activate();
+		delete curEvent;
 	}
 	
 	curTime = endTime;
@@ -178,6 +245,7 @@ void eventList::increaseTimeBy(double timeStep)
 
 void eventList::removeNode(event * thisEvent, bool deleteEvent) 
 { 
+	printf("removeNode %s\n", thisEvent->toString().c_str());
 	if(listHead) 
 		listHead = listHead->removeNode(thisEvent, deleteEvent); 
 }

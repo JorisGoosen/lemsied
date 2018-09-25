@@ -18,12 +18,15 @@ struct event
 	
 	virtual void activate() = 0;
 	static const char * classIdentifier() { return "undifferentiated"; }
+	
+	std::string toString();
 };
 
 class eventList;
 
-struct eventListNode 
+class eventListNode 
 {
+public:
 	eventListNode(eventList * parent, event *theEvent) 
 	: theEvent(theEvent), parent(parent), prev(NULL), next(NULL) {}
 	~eventListNode();
@@ -39,7 +42,11 @@ struct eventListNode
 	eventList * parent; // per lemming list!
 	struct eventListNode *prev, *next;
 	
-	double time() { return theEvent->time; }
+	double time() 				{ return theEvent->time; }
+	std::string identifier() 	{ return theEvent->identifier; }
+	
+	std::string toString();
+	std::string allToString();
 };
 
 class eventList 

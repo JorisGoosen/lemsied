@@ -4,45 +4,20 @@
 
 
 lemming::lemming(welt * umwelt) 
-	: 	currentState(wacht), nextState(wacht), 
-		currentFrame(0), tileX(2), tileY(2),
-meinWelt(umwelt) 
+	: 	currentState(wacht), 
+		nextState(wacht), 
+		currentFrame(0), 
+//		tileX(2), 
+//		tileY(2),
+		meinWelt(umwelt)
 {
+	tileX = rand()%20;
+	tileY = rand()%20;
 	myEvents = new eventList(meinWelt->mainEventList());
 	fillTransitions();
 	loadAnim();
-/*	
-	myEvents->addEvent(new positionChangedEvent(1, this, 2, 3));
 	
-	for(double tijd = 2; tijd<30; tijd+=3)
-	{
-		myEvents->addEvent(new stateChangedEvent(tijd, 			this, stilLO));
-		myEvents->addEvent(new stateChangedEvent(tijd + 0.5, 	this, stilLB));
-		myEvents->addEvent(new stateChangedEvent(tijd + 1.0, 	this, stilB));
-		myEvents->addEvent(new stateChangedEvent(tijd + 1.5, 	this, stilRB));
-		myEvents->addEvent(new stateChangedEvent(tijd + 2.0, 	this, stilRO));
-		myEvents->addEvent(new stateChangedEvent(tijd + 2.5, 	this, stilO));
-	}
-	
-	for(double tijd = 32; tijd<60; tijd+=3)
-	{
-		myEvents->addEvent(new stateChangedEvent(tijd, 			this, stilRO));
-//		myEvents->addEvent(new stateChangedEvent(tijd + 0.5, 	this, stilRB));
-//		myEvents->addEvent(new stateChangedEvent(tijd + 1.0, 	this, stilB));
-		myEvents->addEvent(new stateChangedEvent(tijd + 1.5, 	this, stilLB));
-		myEvents->addEvent(new stateChangedEvent(tijd + 2.0, 	this, stilLO));
-		myEvents->addEvent(new stateChangedEvent(tijd + 2.5, 	this, stilO));
-	}
-	
-	myEvents->addEvent(new stateChangedEvent(63, 	this, stilO));
-	
-	myEvents->addEvent(new positionChangedEvent(2, this, 2, 4));
-	
-	myEvents->addEvent(new positionChangedEvent(3, this, 3, 4));
-	myEvents->addEvent(new positionChangedEvent(4, this, 3, 5));*/
-	
-	beweeg(RechtsBoven);
-	
+	beweeg(RechtsBoven);	
 }
 
 transitieMap lemming::visualTransitions = transitieMap();
@@ -123,7 +98,10 @@ int lemming::getWorldYOri() { return welt::yOri(tileX, tileY); }
 
 void lemming::setCurrentFrame()
 {
-	currentFrame = currentAnim.size() <= currentAnimStep ? 0 : currentAnim[currentAnimStep];
+	if(currentAnim.size() == 0)
+		currentFrame = 0;
+	else
+		currentFrame = currentAnim[currentAnimStep % currentAnim.size()];
 }
 
 void lemming::loadAnim()
@@ -154,7 +132,17 @@ void lemming::stepFrame()
 
 void lemming::drawYourself()
 {
-	meinWelt->drawLemmingFrame(currentFrame, tileX, tileY);
+	double relTime = myEvents->time() - moveTimeBegin;
+	
+	if(moveTimeDuration > 0 && relTime > 0 && relTime <= moveTimeDuration)
+	{
+		double ratio = relTime / moveTimeDuration;
+		meinWelt->drawLemmingFrame(currentFrame,
+			mix(oriActualX, newActualX, ratio),
+			mix(oriActualY, newActualY, ratio));
+	}
+	else
+		meinWelt->drawLemmingFrameInTile(currentFrame, tileX, tileY);
 }
 
 void lemming::stateChanged(lemVisualState newState)
@@ -170,7 +158,9 @@ void lemming::posChanged(int newTileX, int newTileY)
 	tileX = newTileX;
 	tileY = newTileY;
 	
-	moveTimeBegin = -1;
+	
+	
+	moveTimeBegin = 0;
 	moveTimeDuration = 0;
 }
 
@@ -191,6 +181,9 @@ bool lemming::beweeg(lemDir richting)
 	case LinksBoven: 	naDraaiVis = stilLB;	newX--;	if(!downStag)	newY--;	break;
 	case LinksOnder: 	naDraaiVis = stilLO;	newX--;	if( downStag)	newY++;	break;
 	}
+	
+	newX = welt::validateX(newX);
+	newY = welt::validateY(newY);
 	
 	bool mustTurn = currentState != naDraaiVis;
 	
@@ -213,15 +206,17 @@ bool lemming::beweeg(lemDir richting)
 	
 	myEvents->addEvent(new stateChangedEvent(beginTijd, this, naDraaiVis));
 	
-	int frames = 3 * getFrameCountAnim(currentState, naDraaiVis);
-	for(double t = 0; t < loopTijd; t += loopTijd / frames)
+	int frames = 5 * getFrameCountAnim(naDraaiVis, naDraaiVis);
+	for(double t = 0; t <= loopTijd; t += loopTijd / frames)
 		myEvents->addEvent(new stepFrameEvent(beginTijd + t, this));
 	
-	moveTimeBegin = beginTijd;
-	moveTimeDuration = loopTijd;
+	moveTimeBegin 		= beginTijd;
+	moveTimeDuration 	= loopTijd;
+	oriActualX			= welt::xLem(tileX);
+	oriActualY			= welt::yLem(tileX, tileY);
+	newActualX			= welt::xLem(newX);
+	newActualY			= welt::yLem(newX, newY);
 	
 	myEvents->addEvent(new positionChangedEvent(beginTijd + loopTijd, this, newX, newY));	
-	myEvents->addEvent(new considerEvent(beginTijd + loopTijd + EPSILON, this));
-	
-	
+	myEvents->addEvent(new considerEvent(beginTijd + loopTijd + 0.1, this));	
 }

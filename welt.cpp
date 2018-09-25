@@ -34,8 +34,9 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 			
 		}
 	}
-		
-	hank = new lemming(this);
+
+	for(int i=0; i<2; i++)		
+		hanks.push_back(new lemming(this));
 }
 
 void welt::addOverlay(int x, int y, tiletype tegel)
@@ -72,14 +73,19 @@ void welt::draw()
 				}			
 	}
 	
-//	lemming hank(this);
-	hank->drawYourself();
-	hank->stepFrame();
+	for(int i=0; i<hanks.size(); i++)
+		hanks[i]->drawYourself();
+
 }
 
-void welt::drawLemmingFrame(int frame, int tileX, int tileY)
+void welt::drawLemmingFrameInTile(int frame, int tileX, int tileY)
+{
+	drawLemmingFrame(frame, xLem(tileX), yLem(tileX, tileY));
+}
+
+void welt::drawLemmingFrame(int frame, int actualX, int actualY)
 {
 	_tegels.drawLemmingFrame(frame, 
-		xOri(tileX) + ((TILEDIM - LEMW) / 2) - offsetX, 
-		yOri(tileX, tileY) + ((TILEDIM - LEMH) / 2) - offsetY);
+		actualX - offsetX, 
+		actualY - offsetY);
 }

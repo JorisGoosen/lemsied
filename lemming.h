@@ -44,6 +44,8 @@ public:
 	
 	eventList* myList() { return myEvents; }
 	
+	bool isPos(int x, int y) { return tileX == x && y == tileY; }
+	
 private:
 	static transitieMap visualTransitions;
 	eventList 		*myEvents;

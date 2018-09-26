@@ -73,13 +73,22 @@ void welt::draw()
 {
 	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)
 	{
-//		if(veldOverlay == 1)
+		
 			
 		
 		for(int y=0; y < WELT_H; y++)
 			for(int xstart=0; xstart<2; xstart++) // de niet gestaggerede moeten eerst!
 				for(int x=xstart; x < WELT_W; x+=2)
 				{			
+				
+					if(veldOverlay == 1)
+					{
+						lemming * lem = _lemVeld[x][y];
+						if(lem != NULL && lem->isPos(x, y))
+							lem->drawYourself();
+						
+					}
+				
 					int drawX = xOri(x);
 					int drawY = yOri(x, y);
 			
@@ -91,8 +100,8 @@ void welt::draw()
 				}			
 	}
 	
-	for(int i=0; i<_lemmings.size(); i++)
-		_lemmings[i]->drawYourself();
+	//for(int i=0; i<_lemmings.size(); i++)
+	//	_lemmings[i]->drawYourself();
 
 }
 

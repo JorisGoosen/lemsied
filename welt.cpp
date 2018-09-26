@@ -1,6 +1,18 @@
 #include "welt.h"
 #include "lemming.h"
 
+#define RANDOM_DOUBLE_RES 1234567890
+
+double randomDouble(double min, double max)
+{
+	double randomInt = rand()%RANDOM_DOUBLE_RES;
+	randomInt /= RANDOM_DOUBLE_RES;
+	randomInt *= max - min;
+	
+	return min + randomInt;
+
+}
+
 welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0) 
 {
 	_veld.resize(WELT_W);
@@ -35,7 +47,7 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 		}
 	}
 
-	for(int i=0; i<2; i++)		
+	for(int i=0; i<100; i++)		
 		hanks.push_back(new lemming(this));
 }
 

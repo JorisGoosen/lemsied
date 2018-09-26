@@ -42,6 +42,8 @@ public:
 	bool beweeg(lemDir richting);
 	int	 getFrameCountAnim(lemVisualState A, lemVisualState B) { return visualTransitions[A][B].size(); }
 	
+	eventList* myList() { return myEvents; }
+	
 private:
 	static transitieMap visualTransitions;
 	eventList 		*myEvents;
@@ -64,7 +66,7 @@ private:
 struct lemmingEvent : public event
 {
 	lemmingEvent(double time, std::string eventType, lemming * thisGuy) 
-	: event(time, eventType), actor(thisGuy){}
+	: event(time, eventType, thisGuy->myList()), actor(thisGuy){}
 	
 	lemming 		*actor;
 };

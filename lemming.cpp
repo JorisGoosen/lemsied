@@ -11,13 +11,14 @@ lemming::lemming(welt * umwelt)
 //		tileY(2),
 		meinWelt(umwelt)
 {
-	tileX = rand()%20;
-	tileY = rand()%20;
+	tileX = rand()%WELT_W;
+	tileY = rand()%WELT_H;
 	myEvents = new eventList(meinWelt->mainEventList());
 	fillTransitions();
 	loadAnim();
 	
-	beweeg(RechtsBoven);	
+	//beweeg(RechtsBoven);	
+	myEvents->addEvent(new considerEvent(randomDouble(0, 3), this));	
 }
 
 transitieMap lemming::visualTransitions = transitieMap();
@@ -166,7 +167,7 @@ void lemming::posChanged(int newTileX, int newTileY)
 
 bool lemming::beweeg(lemDir richting)
 {
-	printf("beweeg!\n");
+	//printf("beweeg!\n");
 	lemVisualState naDraaiVis;
 	int newX = tileX, newY = tileY;
 	bool downStag = welt::xStaggeredDown(tileX);
@@ -188,7 +189,7 @@ bool lemming::beweeg(lemDir richting)
 	bool mustTurn = currentState != naDraaiVis;
 	
 	double beginTijd = myEvents->time() + EPSILON;
-	printf("lemming thinks time=%f\n", beginTijd);
+	//printf("lemming thinks time=%f\n", beginTijd);
 	
 	const double 	draaiTijd = 0.5, 
 					loopTijd  = 1.0;

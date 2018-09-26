@@ -11,6 +11,7 @@ typedef std::vector<tilecol> tileplane;
 typedef std::vector<std::vector<std::vector<tiletype> * > > tilestacks;
  class lemming;
 
+double randomDouble(double min, double max);
 
 #define WELT_W 50
 #define WELT_H 50

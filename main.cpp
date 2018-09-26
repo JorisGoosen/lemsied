@@ -6,7 +6,7 @@
 welt * wereld;
 SDL_Surface * scherm;
 
-#define TIMESTEP 0.05
+#define TIMESTEP 0.025
 
 void drawwelt()
 {
@@ -20,6 +20,7 @@ int main(int argnum, const char ** args)
 {
 	try
 	{
+		srand(time(NULL));
 		SDL_Init(SDL_INIT_VIDEO);
 
 	//	scherm = SDL_SetVideoMode(800, 480, 32, SDL_FULLSCREEN); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,

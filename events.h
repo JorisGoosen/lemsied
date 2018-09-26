@@ -6,12 +6,16 @@
 #include <time.h>
 #include <unistd.h>
 #include <string>
+#include <list>
+#include <algorithm>
 
 #define EPSILON 0.00000000001
 
+class eventList;
+
 struct event
 {
-	event(double time, std::string identifier) : time(time), identifier(identifier) {}
+	event(double time, std::string identifier, eventList * parent = NULL) : time(time), identifier(identifier), parent(parent) {}
 
 	double time;
 	std::string identifier;
@@ -20,52 +24,28 @@ struct event
 	static const char * classIdentifier() { return "undifferentiated"; }
 	
 	std::string toString();
-};
-
-class eventList;
-
-class eventListNode 
-{
-public:
-	eventListNode(eventList * parent, event *theEvent) 
-	: theEvent(theEvent), parent(parent), prev(NULL), next(NULL) {}
-	~eventListNode();
 	
-	eventListNode * insertNode(eventListNode * other); // returns new headnode
-	eventListNode * removeNode(event * thisEvent, bool deleteEvent); // returns new headnode
-	
-	void setNext(eventListNode *newNext);
-	void destroyPrevious();
-
-	
-	event * theEvent;
-	eventList * parent; // per lemming list!
-	struct eventListNode *prev, *next;
-	
-	double time() 				{ return theEvent->time; }
-	std::string identifier() 	{ return theEvent->identifier; }
-	
-	std::string toString();
-	std::string allToString();
+	eventList * parent;
 };
 
 class eventList 
 {
 public:
-	eventList(eventList * mainList = NULL) : curTime(0), listHead(NULL), mainList(mainList) {}
+	eventList(eventList * mainList = NULL) : curTime(0), mainList(mainList) {}
 	
-	
-	void addEvent(event * newEvent, eventList * parent);
-	void addEvent(event * newEvent) { addEvent(newEvent, this);	}
-	void increaseTimeBy(double timeStep);
-	void removeNode(event * thisEvent, bool deleteEvent = false);
-	bool isEventFirst(event *thisEvent);
+	void 	addEvent(event * newEvent);
+	void 	increaseTimeBy(double timeStep);
+	void 	removeEvent(event * thisEvent);
+	bool 	isEventFirst(event *thisEvent)	{ return firstEvent() == thisEvent; }
+	event*	firstEvent()					{ return events.size()>0 ? events.begin()->second : NULL; }
+	size_t	size()							{ return events.size(); }
 	
 	double time();
 	
 private:
 	double 			curTime;
-	eventListNode 	*listHead;
 	eventList 		*mainList;
+	
+	std::list<std::pair<double, event *> > events;
 };
 #endif

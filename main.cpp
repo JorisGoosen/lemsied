@@ -66,7 +66,7 @@ int main(int argnum, const char ** args)
 				}
 			}
 		
-			usleep(1000000 * TIMESTEP);
+			//usleep(1000000 * TIMESTEP);
 			wereld->stepTime(TIMESTEP);
 			drawwelt();
 

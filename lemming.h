@@ -37,7 +37,7 @@ public:
 	
 	void stateChanged(lemVisualState newState);
 	void posChanged(int newTileX, int newTileY);
-	void consider() { beweeg(static_cast<lemDir>(rand()%6)); }
+	void consider();
 	
 	bool beweeg(lemDir richting);
 	int	 getFrameCountAnim(lemVisualState A, lemVisualState B) { return visualTransitions[A][B].size(); }

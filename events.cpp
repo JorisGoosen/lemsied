@@ -49,6 +49,8 @@ void eventList::addEvent(event * newEvent)
 
 void eventList::increaseTimeBy(double timeStep)
 {
+	//std::cout << "increasing time from " << curTime << " by " << timeStep << std::endl;
+	
 	double endTime = curTime + timeStep;
 
 	

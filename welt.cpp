@@ -10,26 +10,29 @@ double randomDouble(double min, double max)
 	randomInt *= max - min;
 	
 	return min + randomInt;
-
 }
 
 welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0) 
 {
 	_veld.resize(WELT_W);
 	_overlay.resize(WELT_W);
+	_lemVeld.resize(WELT_W);
 	
 	for(int x=0; x<WELT_W; x++)
 	{
 		_veld[x].resize(WELT_H);
 		_overlay[x].resize(WELT_H);
+		_lemVeld[x].resize(WELT_H);
+		
 
 		for(int y=0; y<WELT_H; y++)
 		{
+			_lemVeld[x][y] = NULL;
 			
 			_veld[x][y] = rand()%3;
 			
 			if(rand()%5 == 0)
-				_veld[x][y] = 3;
+				_veld[x][y] = 3; // 3 is water
 							
 			_overlay[x][y] = NULL;
 			
@@ -47,8 +50,8 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 		}
 	}
 
-	for(int i=0; i<100; i++)		
-		hanks.push_back(new lemming(this));
+	for(int i=0; i<12; i++)		
+		_lemmings.push_back(new lemming(this));
 }
 
 void welt::addOverlay(int x, int y, tiletype tegel)
@@ -70,6 +73,9 @@ void welt::draw()
 {
 	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)
 	{
+//		if(veldOverlay == 1)
+			
+		
 		for(int y=0; y < WELT_H; y++)
 			for(int xstart=0; xstart<2; xstart++) // de niet gestaggerede moeten eerst!
 				for(int x=xstart; x < WELT_W; x+=2)
@@ -85,8 +91,8 @@ void welt::draw()
 				}			
 	}
 	
-	for(int i=0; i<hanks.size(); i++)
-		hanks[i]->drawYourself();
+	for(int i=0; i<_lemmings.size(); i++)
+		_lemmings[i]->drawYourself();
 
 }
 
@@ -100,4 +106,27 @@ void welt::drawLemmingFrame(int frame, int actualX, int actualY)
 	_tegels.drawLemmingFrame(frame, 
 		actualX - offsetX, 
 		actualY - offsetY);
+}
+
+void welt::registerLemPos(lemming * lem, int x, int y)
+{
+	if(_lemVeld[x][y] != NULL && lem != NULL)
+	{
+		if(lem != _lemVeld[x][y])
+			throw exceptioneel("lemming tries to register itself where somebody is already registered..");
+	}
+
+	_lemVeld[x][y] = lem;
+	
+	
+}
+
+lemming * welt::lemAt(int x, int y)
+{
+	return _lemVeld[x][y];
+}
+
+bool welt::landFree(int x, int y)
+{
+	return _overlay[x][y] == NULL && _veld[x][y] != 3;
 }

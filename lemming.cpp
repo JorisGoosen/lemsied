@@ -1,7 +1,7 @@
 #include "lemming.h"
 #include <algorithm>
 #include "welt.h"
-
+#include <iostream>
 
 lemming::lemming(welt * umwelt) 
 	: 	currentState(wacht), 
@@ -11,14 +11,22 @@ lemming::lemming(welt * umwelt)
 //		tileY(2),
 		meinWelt(umwelt)
 {
-	tileX = rand()%WELT_W;
-	tileY = rand()%WELT_H;
+	do
+	{
+		tileX = rand()%WELT_W;
+		tileY = rand()%WELT_H;
+	}
+	while(meinWelt->lemAt(tileX, tileY) != NULL || !meinWelt->landFree(tileX, tileY));
+	
 	myEvents = new eventList(meinWelt->mainEventList());
 	fillTransitions();
 	loadAnim();
 	
 	//beweeg(RechtsBoven);	
 	myEvents->addEvent(new considerEvent(randomDouble(0, 3), this));	
+	
+	//std::cout << this << " sets lempos " << tileX << "," << tileY << " to ITSELF" << std::endl;
+	meinWelt->registerLemPos(this, tileX, tileY);
 }
 
 transitieMap lemming::visualTransitions = transitieMap();
@@ -156,13 +164,12 @@ void lemming::stateChanged(lemVisualState newState)
 
 void lemming::posChanged(int newTileX, int newTileY)
 {
+	//std::cout << this << " sets lempos " << tileX << "," << tileY << " to NULL" << std::endl;
+	meinWelt->registerLemPos(NULL, tileX, tileY);
 	tileX = newTileX;
 	tileY = newTileY;
-	
-	
-	
-	moveTimeBegin = 0;
-	moveTimeDuration = 0;
+	//std::cout << this << " sets lempos " << tileX << "," << tileY << " to ITSELF" << std::endl;
+	meinWelt->registerLemPos(this, tileX, tileY); //should be set already in beweeg	
 }
 
 bool lemming::beweeg(lemDir richting)
@@ -185,6 +192,14 @@ bool lemming::beweeg(lemDir richting)
 	
 	newX = welt::validateX(newX);
 	newY = welt::validateY(newY);
+	
+	lemming * collis = meinWelt->lemAt(newX, newY);
+	if(collis != NULL || !meinWelt->landFree(newX, newY))
+	{
+		//std::cout << this << " might collide with " << collis << " abort beweeg!" << std::endl;
+		return false;
+	}
+	meinWelt->registerLemPos(this, newX, newY);
 	
 	bool mustTurn = currentState != naDraaiVis;
 	
@@ -218,6 +233,15 @@ bool lemming::beweeg(lemDir richting)
 	newActualX			= welt::xLem(newX);
 	newActualY			= welt::yLem(newX, newY);
 	
-	myEvents->addEvent(new positionChangedEvent(beginTijd + loopTijd, this, newX, newY));	
-	myEvents->addEvent(new considerEvent(beginTijd + loopTijd + 0.1, this));	
+	myEvents->addEvent(new positionChangedEvent(beginTijd + (loopTijd * 0.5), this, newX, newY));	
+	myEvents->addEvent(new considerEvent(beginTijd + loopTijd + 0.1, this));
+	
+	return true;
 }
+
+void lemming::consider() 
+{ 
+	if(!beweeg(static_cast<lemDir>(rand()%6))) 
+		myEvents->addEvent(new considerEvent(myEvents->time() + randomDouble(0, 2), this));
+}
+

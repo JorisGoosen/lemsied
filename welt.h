@@ -10,11 +10,14 @@ typedef std::vector<tilecol> tileplane;
 
 typedef std::vector<std::vector<std::vector<tiletype> * > > tilestacks;
  class lemming;
+ 
+typedef std::vector<lemming*> lemcol;
+typedef std::vector<lemcol> lemplane;
 
 double randomDouble(double min, double max);
 
-#define WELT_W 50
-#define WELT_H 50
+#define WELT_W 15
+#define WELT_H 10
 #define WELT_X_OFFSET ((TILEDIM / 4) * 3)
 #define STAGGERED_Y_OFFSET (TILEDIM / 4)
 
@@ -44,14 +47,20 @@ public:
 	
 	static int xLem(int tileX) 				{ return xOri(tileX) + ((TILEDIM - LEMW) / 2); }
 	static int yLem(int tileX, int tileY)  	{ return yOri(tileX, tileY) + ((TILEDIM - LEMH) / 2); }
+	
+	void registerLemPos(lemming * lem, int x, int y);
+	lemming * lemAt(int x, int y); 
+	bool landFree(int x, int y);
 		
 private:
 	eventList	theEvents;
 	tiles		_tegels;//, _water;
 	tileplane 	_veld;
 	tilestacks 	_overlay;
+	lemplane	_lemVeld;
 	
-	std::vector<lemming*> hanks; 
+	std::vector<lemming*> _lemmings; 
+	
 	
 	int 		offsetX, offsetY;
 };

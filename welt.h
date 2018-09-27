@@ -16,8 +16,8 @@ typedef std::vector<lemcol> lemplane;
 
 double randomDouble(double min, double max);
 
-#define WELT_W 15
-#define WELT_H 10
+#define WELT_W 16
+#define WELT_H 12
 #define WELT_X_OFFSET ((TILEDIM / 4) * 3)
 #define STAGGERED_Y_OFFSET (TILEDIM / 4)
 

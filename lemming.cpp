@@ -87,6 +87,13 @@ void lemming::fillTransitions()
 	combineAndAddReverso(visualTransitions, stilRO, stilB, stilLB);
 	combineAndAddReverso(visualTransitions, stilRB, stilLB, stilLO);
 	
+	combineAndAddReverso(visualTransitions, wacht, stilO, stilRB);
+	combineAndAddReverso(visualTransitions, wacht, stilO, stilB);
+	combineAndAddReverso(visualTransitions, wacht, stilO, stilLB);
+	combineAndAddReverso(visualTransitions, wacht, stilO, stilLO);
+	combineAndAddReverso(visualTransitions, wacht, stilO, stilO);
+	combineAndAddReverso(visualTransitions, wacht, stilO, stilB);
+	
 	size_t loopO[]  = {2,  16, 17, 18, 17, 16, 2,  21, 20, 19, 20, 21, 2};
 	size_t loopB[]  = {9,  22, 23, 24, 23, 22, 9,  27, 26, 25 ,26, 27, 9};
 	size_t loopRB[] = {6,  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 6};
@@ -213,17 +220,18 @@ bool lemming::beweeg(lemDir richting)
 	{
 		myEvents->addEvent(new stateChangedEvent(beginTijd, this, naDraaiVis));
 
-		int frames = getFrameCountAnim(currentState, naDraaiVis);
+		int frames = std::max(getFrameCountAnim(currentState, naDraaiVis) - 1, 0);
 		for(double t = 0; t < draaiTijd; t += draaiTijd / frames)
 			myEvents->addEvent(new stepFrameEvent(beginTijd + t, this));
 		
 		beginTijd += draaiTijd;
 	}
 	
+	//lopen:
 	myEvents->addEvent(new stateChangedEvent(beginTijd, this, naDraaiVis));
 	
-	int frames = 5 * getFrameCountAnim(naDraaiVis, naDraaiVis);
-	for(double t = 0; t <= loopTijd; t += loopTijd / frames)
+	int frames = std::max((5 * getFrameCountAnim(naDraaiVis, naDraaiVis)) - 1, 0);;
+	for(double t = 0; t < loopTijd; t += loopTijd / frames)
 		myEvents->addEvent(new stepFrameEvent(beginTijd + t, this));
 	
 	moveTimeBegin 		= beginTijd;
@@ -234,7 +242,20 @@ bool lemming::beweeg(lemDir richting)
 	newActualY			= welt::yLem(newX, newY);
 	
 	myEvents->addEvent(new positionChangedEvent(beginTijd + (loopTijd * 0.5), this, newX, newY));	
-	myEvents->addEvent(new considerEvent(beginTijd + loopTijd + 0.1, this));
+	
+	beginTijd += loopTijd;
+	
+	//terug naar wacht:
+	myEvents->addEvent(new stateChangedEvent(beginTijd, this, wacht));
+
+	frames = std::max(getFrameCountAnim(naDraaiVis, wacht) - 1, 0);
+	for(double t = 0; t < draaiTijd; t += draaiTijd / frames)
+		myEvents->addEvent(new stepFrameEvent(beginTijd + t, this));
+	
+	beginTijd += draaiTijd;
+	
+	myEvents->addEvent(new stateChangedEvent(beginTijd + 0.05, this, wacht));
+	myEvents->addEvent(new considerEvent(beginTijd + 0.1, this));
 	
 	return true;
 }

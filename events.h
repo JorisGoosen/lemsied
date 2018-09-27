@@ -15,7 +15,8 @@ class eventList;
 
 struct event
 {
-	event(double time, std::string identifier, eventList * parent = NULL) : time(time), identifier(identifier), parent(parent) {}
+	event(double time, std::string identifier, eventList * parent = NULL) 
+	: time(time), identifier(identifier), parent(parent) {}
 
 	double time;
 	std::string identifier;

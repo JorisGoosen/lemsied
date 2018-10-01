@@ -181,14 +181,14 @@ void lemming::posChanged(lemPos p)
 
 bool lemming::beweeg(lemDir richting)
 {
-	printf("beweeg!\n");
+	//printf("beweeg!\n");
 	lemVisualState naDraaiVis;
 	lemPos newP(meinWelt->getPosInDir(myPos, richting, &naDraaiVis));
 	
 	lemming * collis = meinWelt->lemAt(newP);
 	if(collis != NULL || !meinWelt->landFree(newP))
 	{
-		std::cout << this << " might collide with " << collis << " or land " << (meinWelt->landFree(newP) ? "free" : "full")  << " abort beweeg!" << std::endl;
+		//std::cout << this << " might collide with " << collis << " or land " << (meinWelt->landFree(newP) ? "free" : "full")  << " abort beweeg!" << std::endl;
 		return false;
 	}
 	

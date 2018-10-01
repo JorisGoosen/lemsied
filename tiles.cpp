@@ -14,6 +14,7 @@ tiles::tiles(SDL_Surface * scherm) : _scherm(scherm)
 	
 	_tiles 		= IMG_Load("GridTiles.png");
 	_lemming	= IMG_Load("Lemming.png");
+	_muren 		= IMG_Load("Walls.png");
 	
 	if(_tiles == NULL)
 		throw exceptioneel("tiles init failed\n");
@@ -40,6 +41,30 @@ void tiles::drawtile(tiletype tile, int x, int y, int w, int h)
 	
 	if(0 != SDL_BlitSurface(_tiles, &hier, _scherm, &daar))
 		throw exceptioneel("tiles blit failed\n");
+}
+
+void tiles::drawWall(tiletype tile, int x, int y)
+{
+	int w = WALLW;
+	int h = WALLH;
+	
+	y -= (TILEDIM - WALLH); //so that tile xy == wall xy
+	
+	if(x > _scherm->w || y > _scherm->h || x + w < 0 || y + h < 0)
+		return;
+		
+	int hierX = tile * TILEDIM;
+	int rij = ((hierX - (hierX % _muren->w)) / _muren->w);
+	int hierY =  rij * TILEDIM;
+	hierX = hierX % _muren->w;
+
+	  
+	
+	SDL_Rect hier = {hierX, hierY, TILEDIM, TILEDIM};
+	SDL_Rect daar = {x, y, w, h};
+	
+	if(0 != SDL_BlitSurface(_muren, &hier, _scherm, &daar))
+		throw exceptioneel("muren blit failed\n");
 }
 
 void tiles::drawLemmingFrame(int frame, int x, int y)

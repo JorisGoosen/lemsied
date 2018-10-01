@@ -32,7 +32,7 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 			_veld[x][y] = rand()%3;
 			
 			if(rand()%5 == 0)
-				_veld[x][y] = 3; // 3 is water
+				_veld[x][y] = WATER;
 							
 			_overlay[x][y] = NULL;
 			
@@ -41,16 +41,16 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 			// 5 lo 6 ro 7 rb 8 lb 9 o 10 b
 				_overlay[x][y] = new tilecol;
 				
-				if(rand()%4==0)
-					_overlay[x][y]->push_back(8);
-				else
+				/*if(rand()%8==0)
+					_overlay[x][y]->push_back(POORTHUISJE);
+				else*/
 					_overlay[x][y]->push_back(4 + (rand()%4));
 			}
 			
 		}
 	}
 
-	for(int i=0; i<40; i++)		
+	for(int i=0; i<20; i++)		
 		_lemmings.push_back(new lemming(this));
 }
 
@@ -61,8 +61,6 @@ void welt::addOverlay(int x, int y, tiletype tegel)
 		
 	_overlay[x][y]->push_back(tegel);
 }
-
-
 
 int welt::yOri(lemPos p)
 {
@@ -136,9 +134,26 @@ lemming * welt::lemAt(lemPos p)
 	return _lemVeld[p.x][p.y];
 }
 
+bool welt::overlayIsOnly(lemPos p, int typeOverlay)
+{
+	if(_overlay[p.x][p.y] == NULL)
+		return false;
+		
+	if(_overlay[p.x][p.y]->size() != 1)
+		return false;
+		
+	return _overlay[p.x][p.y]->at(0) == typeOverlay;
+}
+
 bool welt::landFree(lemPos p)
 {
-	return _overlay[p.x][p.y] == NULL && _veld[p.x][p.y] != 3;
+	//return (_overlay[p.x][p.y] == NULL || overlayIsOnly(p, POORTHUISJE)) && _veld[p.x][p.y] != 3;
+	return _overlay[p.x][p.y] == NULL  && _veld[p.x][p.y] != 3;
+}
+
+bool welt::canWalk(lemPos a, lemPos b)
+{
+	return landFree(b);
 }
 
 lemPos welt::getPosInDir(lemPos p, lemDir d, lemVisualState * naDraaiVisP)

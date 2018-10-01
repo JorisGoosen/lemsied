@@ -49,12 +49,15 @@ public:
 	void 		registerLemPos(lemming * lem, lemPos p);
 	lemming * 	lemAt(lemPos p); 
 	bool 		landFree(lemPos p);
+	bool		canWalk(lemPos a, lemPos b);
 	lemPos		getPosInDir(lemPos p, lemDir d, lemVisualState * naDraaiVis = NULL);
+	bool 		overlayIsOnly(lemPos p, int typeOverlay);
 	
 	static int xOri(lemPos p) 	{ return p.x * WELT_X_OFFSET; }
 	static int yOri(lemPos p);
 		
 private:
+
 	static bool xStaggeredDown(int tileX) { return tileX % 2 == 1; }
 	eventList	theEvents;
 	tiles		_tegels;//, _water;

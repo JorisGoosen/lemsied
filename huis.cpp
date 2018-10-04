@@ -46,12 +46,12 @@ bool huis::isDirOpen(lemDir d)
 {
 	switch(d)
 	{
-	case Onder:			return O  != MUUR;
-	case RechtsOnder:	return RO != MUUR;
-	case RechtsBoven:	return RB != MUUR;
-	case Boven:			return B  != MUUR;
-	case LinksBoven:	return LB != MUUR;
-	case LinksOnder:	return LO != MUUR;
+	case Onder:			return O  == DEUR;
+	case RechtsOnder:	return RO == DEUR;
+	case RechtsBoven:	return RB == DEUR;
+	case Boven:			return B  == DEUR;
+	case LinksBoven:	return LB == DEUR;
+	case LinksOnder:	return LO == DEUR;
 	}
 }
 

@@ -186,7 +186,7 @@ bool lemming::beweeg(lemDir richting)
 	lemPos newP(meinWelt->getPosInDir(myPos, richting, &naDraaiVis));
 	
 	lemming * collis = meinWelt->lemAt(newP);
-	if(collis != NULL || !meinWelt->landFree(newP))
+	if(collis != NULL || !meinWelt->canWalk(myPos, richting))
 	{
 		//std::cout << this << " might collide with " << collis << " or land " << (meinWelt->landFree(newP) ? "free" : "full")  << " abort beweeg!" << std::endl;
 		return false;

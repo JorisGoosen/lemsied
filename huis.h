@@ -9,6 +9,7 @@ enum WallType { MUUR, RAAM, DEUR};
 
 class huis
 {
+public:
 	huis();
 
 	int LO, O, RO, RB, B, LB;

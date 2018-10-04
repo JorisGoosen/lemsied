@@ -48,19 +48,19 @@ void tiles::drawWall(tiletype tile, int x, int y)
 	int w = WALLW;
 	int h = WALLH;
 	
-	y -= (TILEDIM - WALLH); //so that tile xy == wall xy
+	y -= WALLH - TILEDIM; //so that tile xy == wall xy
 	
 	if(x > _scherm->w || y > _scherm->h || x + w < 0 || y + h < 0)
 		return;
 		
-	int hierX = tile * TILEDIM;
+	int hierX = tile * WALLW;
 	int rij = ((hierX - (hierX % _muren->w)) / _muren->w);
-	int hierY =  rij * TILEDIM;
+	int hierY =  rij * WALLH;
 	hierX = hierX % _muren->w;
 
 	  
 	
-	SDL_Rect hier = {hierX, hierY, TILEDIM, TILEDIM};
+	SDL_Rect hier = {hierX, hierY, WALLW, WALLH};
 	SDL_Rect daar = {x, y, w, h};
 	
 	if(0 != SDL_BlitSurface(_muren, &hier, _scherm, &daar))

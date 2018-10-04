@@ -1,20 +1,16 @@
 #ifndef WELT_HEADER
 #define WELT_HEADER
 
-#include "tiles.h"
 #include <vector>
 #include "events.h"
-#include "lempos.h"
+#include "weltveld.h"
 
-typedef std::vector<tiletype> tilecol;
-typedef std::vector<tilecol> tileplane;
 
-typedef std::vector<std::vector<std::vector<tiletype> * > > tilestacks;
- class lemming;
+typedef std::vector<weltVeld*> veldcol;
+typedef std::vector<veldcol> veldplane;
+
+class lemming;
  
-typedef std::vector<lemming*> lemcol;
-typedef std::vector<lemcol> lemplane;
-
 double randomDouble(double min, double max);
 
 #define WELT_W 16
@@ -29,8 +25,6 @@ public:
 	welt(SDL_Surface * scherm);
 	
 	void draw();
-	
-	void addOverlay(int x, int y, tiletype tegel);
 	
 	void drawLemmingFrameInTile(int frame, lemPos p);
 	void drawLemmingFrame(int frame, int pixelX, int pixelY);
@@ -49,9 +43,10 @@ public:
 	void 		registerLemPos(lemming * lem, lemPos p);
 	lemming * 	lemAt(lemPos p); 
 	bool 		landFree(lemPos p);
-	bool		canWalk(lemPos a, lemPos b);
+	bool		canWalk(lemPos a, lemDir d);
 	lemPos		getPosInDir(lemPos p, lemDir d, lemVisualState * naDraaiVis = NULL);
 	bool 		overlayIsOnly(lemPos p, int typeOverlay);
+	weltVeld*	cel(lemPos p) { return _veld[p.x][p.y]; }
 	
 	static int xOri(lemPos p) 	{ return p.x * WELT_X_OFFSET; }
 	static int yOri(lemPos p);
@@ -61,9 +56,7 @@ private:
 	static bool xStaggeredDown(int tileX) { return tileX % 2 == 1; }
 	eventList	theEvents;
 	tiles		_tegels;//, _water;
-	tileplane 	_veld;
-	tilestacks 	_overlay;
-	lemplane	_lemVeld;
+	veldplane	_veld;
 	
 	std::vector<lemming*> _lemmings; 
 	

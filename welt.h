@@ -43,7 +43,7 @@ public:
 	void 		registerLemPos(lemming * lem, lemPos p);
 	lemming * 	lemAt(lemPos p); 
 	bool 		landFree(lemPos p);
-	bool		canWalk(lemPos a, lemDir d);
+	bool		canWalk(lemPos a, lemPos b);
 	lemPos		getPosInDir(lemPos p, lemDir d, lemVisualState * naDraaiVis = NULL);
 	bool 		overlayIsOnly(lemPos p, int typeOverlay);
 	weltVeld*	cel(lemPos p) { return _veld[p.x][p.y]; }

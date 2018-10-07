@@ -133,39 +133,85 @@ bool welt::landFree(lemPos p)
 	return _veld[p.x][p.y]->free();
 }
 
-bool welt::canWalk(lemPos a, lemDir d)
+bool welt::canWalk(lemPos a, lemPos b)
 {
-	lemPos b =  getPosInDir(a, d);
-	//if(a == b) return true;
+	if(a == b) return true;
 	
 	huis *ha = cel(a)->domus, *hb = cel(b)->domus;
 	
 	if(ha == NULL && hb == NULL)
 		return cel(b)->free();
 
-	lemDir fromA;
+	int xMove = b.x - a.x;
+	int yMove = b.y - a.y;	
 	
-	switch(d)
+	if(xMove != 0)
 	{
-	case Onder: fromA = Boven; break;
-	case Boven: fromA = Onder; break;
-	case LinksOnder: fromA = RechtsBoven; break;
-	case LinksBoven: fromA = RechtsOnder; break;
-	case RechtsOnder: fromA = LinksBoven; break;
-	case RechtsBoven: fromA = LinksOnder; break;
+		if(xStaggeredDown(a.x))
+		{
+			if(yMove == 0)
+				yMove = -1;
+		}	
+		else 
+		{
+			if(yMove == 0)
+				yMove = 1;
 		}
+	}
 	
-	//std::cout << "can walk from " << a.toString() << " to " <<  b.toString() << " in dir "<<xMove<<", "<<yMove<<"? ";
+	lemDir toB, fromA;
+	
+	if(xMove == 0)
+	{
+		if(yMove > 0)
+		{
+			toB 	= Onder;
+			fromA 	= Boven;
+		}
+		else 
+		{
+			toB 	= Boven;
+			fromA 	= Onder;
+		}
+	} 
+	else if(xMove > 0)
+	{
+		if(yMove > 0)
+		{
+			toB 	= RechtsOnder;
+			fromA 	= RechtsBoven;
+		}
+		else
+		{
+			toB 	= RechtsBoven;
+			fromA 	= RechtsOnder;
+		}
+	}
+	else
+	{
+		if(yMove > 0)
+		{
+			toB 	= LinksOnder;
+			fromA 	= LinksBoven;
+		}
+		else
+		{
+			toB 	= LinksBoven;
+			fromA 	= LinksOnder;
+		}
+	}
+	
+	std::cout << "can walk from " << a.toString() << " to " <<  b.toString() << " in dir "<<xMove<<", "<<yMove<<"? ";
 	
 	bool free = cel(b)->free();
 	
-	if(ha != NULL && !ha->isDirOpen(d))
+	if(ha != NULL && !ha->isDirOpen(toB))
 		free = false;
 		
 	if(hb != NULL && !hb->isDirOpen(fromA))
 		free = false;
 		
-	//std::cout << (free?"yes!":"no!")<< std::endl;
+	std::cout << (free?"yes!":"no!")<< std::endl;
 	
 	
 	return free;

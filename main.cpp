@@ -10,7 +10,6 @@ SDL_Surface * scherm;
 
 void drawwelt()
 {
-	SDL_FillRect(scherm, NULL, SDL_MapRGBA(scherm->format, 0, 0, 0, 255));
 	wereld->draw();
 
 	SDL_UpdateRect(scherm, 0, 0, 0, 0);
@@ -23,8 +22,12 @@ int main(int argnum, const char ** args)
 		srand(time(NULL));
 		SDL_Init(SDL_INIT_VIDEO);
 
+		SCREEN_WIDTH_PIX = 3000;
+		SCREEN_HEIGHT_PIX = 1500;
+		
 	//	scherm = SDL_SetVideoMode(800, 480, 32, SDL_FULLSCREEN); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,
-		scherm = SDL_SetVideoMode(800, 432, 32, 0); // | SDL_DOUBLEBUF | SDL_HWSURFACE);,
+		scherm = SDL_SetVideoMode(SCREEN_WIDTH_PIX, SCREEN_HEIGHT_PIX, 32, 0 | SDL_HWSURFACE | SDL_ASYNCBLIT);
+
 		if(scherm == NULL ) //|| (scherm->flags & SDL_DOUBLEBUF) == 0 || (scherm->flags & SDL_HWSURFACE) == 0) 
 		{
 			printf("no scherm //or doublebuf or hwsurf\n");
@@ -40,7 +43,7 @@ int main(int argnum, const char ** args)
 		SDL_Event event;
 	
 		drawwelt();
-		bool continueForever = true;
+		bool 	continueForever = true;
 	
 		while(continueForever)
 		{
@@ -66,10 +69,13 @@ int main(int argnum, const char ** args)
 				}
 			}
 		
-			usleep(1000000 * TIMESTEP);
+		//	usleep(1000000 * TIMESTEP);
 			wereld->stepTime(TIMESTEP);
-			drawwelt();
 
+			if(!wereld->valid())
+				SDL_FillRect(scherm, NULL, SDL_MapRGBA(scherm->format, 0, 0, 0, 255));
+
+			drawwelt();
 		}
 
 		SDL_Quit();	

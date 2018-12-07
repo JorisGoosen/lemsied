@@ -172,6 +172,7 @@ void lemming::stateChanged(lemVisualState newState)
 
 void lemming::posChanged(lemPos p)
 {
+	
 	//std::cout << this << " sets lempos " << tileX << "," << tileY << " to NULL" << std::endl;
 	meinWelt->registerLemPos(NULL, myPos);
 	myPos = p;

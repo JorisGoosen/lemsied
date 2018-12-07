@@ -19,6 +19,7 @@ public:
 	tiletype 	veld;
 	tiletype 	overlay;
 	huis * 		domus;
+	bool 		valid = false;
 };
 
 

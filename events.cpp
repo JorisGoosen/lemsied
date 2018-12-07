@@ -30,7 +30,7 @@ void eventList::addEvent(event * newEvent)
 	
 	event * oudeEersteEvent = events.size() > 0 ? events.begin()->second : NULL;
 	
-	events.push_back(std::make_pair<double, event*>(newEvent->time, newEvent));
+	events.push_back(std::make_pair(newEvent->time, newEvent));
 	events.sort(compPair);
 	
 	if(mainList != NULL) //we zitten in een lemminglist

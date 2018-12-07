@@ -13,11 +13,16 @@ class lemming;
  
 double randomDouble(double min, double max);
 
-#define WELT_W 16
-#define WELT_H 12
+#define WELT_W 200
+#define WELT_H 200
 #define WELT_X_OFFSET ((TILEDIM / 4) * 3)
 #define STAGGERED_Y_OFFSET (TILEDIM / 4)
 
+extern size_t SCREEN_WIDTH_PIX;
+extern size_t SCREEN_HEIGHT_PIX;
+
+#define SCREEN_WIDTH 	(SCREEN_WIDTH_PIX / WELT_X_OFFSET)
+#define SCREEN_HEIGHT 	((SCREEN_HEIGHT_PIX / TILEDIM) + (TILEDIM / 4))
 
 class welt
 {
@@ -29,7 +34,7 @@ public:
 	void drawLemmingFrameInTile(int frame, lemPos p);
 	void drawLemmingFrame(int frame, int pixelX, int pixelY);
 	
-	void moveView(int X, int Y) { offsetX += X; offsetY += Y;}
+	void moveView(int X, int Y) { offsetX += X; offsetY += Y; _valid = false; }
 	void stepTime(double timeStep = 0.2) { theEvents.increaseTimeBy(timeStep); }
 	
 	eventList * mainEventList() { return &theEvents; }
@@ -50,6 +55,8 @@ public:
 	
 	static int xOri(lemPos p) 	{ return p.x * WELT_X_OFFSET; }
 	static int yOri(lemPos p);
+
+	bool 		valid() { return _valid; }
 		
 private:
 
@@ -57,6 +64,7 @@ private:
 	eventList	theEvents;
 	tiles		_tegels;//, _water;
 	veldplane	_veld;
+	bool 		_valid = false;
 	
 	std::vector<lemming*> _lemmings; 
 	

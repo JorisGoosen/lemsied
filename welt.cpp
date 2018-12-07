@@ -4,6 +4,10 @@
 
 #define RANDOM_DOUBLE_RES 1234567890
 
+
+size_t SCREEN_WIDTH_PIX		= 0;
+size_t SCREEN_HEIGHT_PIX 	= 0;
+
 double randomDouble(double min, double max)
 {
 	double randomInt = rand()%RANDOM_DOUBLE_RES;
@@ -25,7 +29,7 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 			_veld[x][y] = new weltVeld();
 	}
 
-	for(int i=0; i<30; i++)		
+	for(int i=0; i<90; i++)		
 		_lemmings.push_back(new lemming(this));
 }
 
@@ -36,61 +40,91 @@ int welt::yOri(lemPos p)
 
 void welt::draw()
 {
-	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)
-	{		
-		for(int y=0; y < WELT_H; y++)
+	lemPos minBB(1 + (offsetX / WELT_X_OFFSET), 1 + (offsetY / TILEDIM)), maxBB(minBB.x + SCREEN_WIDTH - 2, minBB.y + SCREEN_HEIGHT - 2);
+	//lemPos minBB(3, 3), maxBB(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)	
+		for(int y=std::max(0, minBB.y); y < std::min(WELT_H, maxBB.y); y++)
 			for(int xstart=0; xstart<2; xstart++) // de niet gestaggerede moeten eerst!
-				for(int x=xstart; x < WELT_W; x+=2)
-				{			
+				for(int x=std::max(0, minBB.x) + xstart; x < std::min(WELT_W, maxBB.x); x+=2)
+				{
 					lemPos p(x, y);
 					
-					int drawX = xOri(p) - offsetX;
-					int drawY = yOri(p) - offsetY;
-			
-					switch(veldOverlay)
-					{
-					case 0:
-						_tegels.drawtile(_veld[x][y]->veld, drawX, drawY);
-						break;
+					/*bool 	invalidated = !_veld[x][y]->valid || !_valid,
+							lemAbove 	= false,
+							lemBelow 	= false,
+							lemHiero	= _veld[x][y]->lem != NULL;
+
 					
-					case 1:
-					{
-						if(_veld[x][y]->domus != NULL)
+
+					if(!invalidated)
+						for(int xp = -1; xp < 2; xp++)
+							for(int yp = -1; yp < 2; yp++)
+								if(_veld[validateX(xp + p.x)][validateY(yp + p.y)]->lem != NULL)
+								{
+									if(yp < 0)	lemAbove = true;
+									if(yp > 0)	lemBelow = true;
+								}
+
+					invalidated = invalidated || lemHiero;
+
+					if(invalidated || lemAbove || lemBelow)*/
+					{			
+						int drawX = xOri(p) - offsetX;
+						int drawY = yOri(p) - offsetY;
+				
+						switch(veldOverlay)
 						{
-							std::vector<int> achter = _veld[x][y]->domus->achtergrond();
-							
-							for(int i=0; i<achter.size(); i++)
-								_tegels.drawWall(achter[i], drawX, drawY);
-						}
+						case 0:
+							//if(!(invalidated || lemBelow))
+							//	break;
+
+							_tegels.drawtile(_veld[x][y]->veld, drawX, drawY);
+							break;
 						
-						if(_veld[x][y]->overlay != LEEG)
-							_tegels.drawtile(_veld[x][y]->overlay, drawX, drawY);
-							
-						lemming * lem = _veld[x][y]->lem;
-						if(lem != NULL && lem->isPos(p))
-							lem->drawYourself();
-							
-						if(_veld[x][y]->domus != NULL)
+						case 1:
 						{
-							std::vector<int> voor = _veld[x][y]->domus->voorgrond();
-							
-							for(int i=0; i<voor.size(); i++)
-								_tegels.drawWall(voor[i], drawX, drawY);
+							if(_veld[x][y]->domus != NULL)
+							{
+								std::vector<int> achter = _veld[x][y]->domus->achtergrond();
 								
-							_tegels.drawtile(_veld[x][y]->domus->dak, drawX, drawY - DAKOFFSET);
-						}	
-						
-						break;
-					}
-						
-					}
-						
-				}			
-	}
+								for(int i=0; i<achter.size(); i++)
+									_tegels.drawWall(achter[i], drawX, drawY);
+							}
+							
+							if(_veld[x][y]->overlay != LEEG)
+								_tegels.drawtile(_veld[x][y]->overlay, drawX, drawY);
+								
+							lemming * lem = _veld[x][y]->lem;
+							if(lem != NULL && lem->isPos(p))
+								lem->drawYourself();
+								
+							if(_veld[x][y]->domus != NULL)
+							{
+								std::vector<int> voor = _veld[x][y]->domus->voorgrond();
+								
+								for(int i=0; i<voor.size(); i++)
+									_tegels.drawWall(voor[i], drawX, drawY);
+									
+								_tegels.drawtile(_veld[x][y]->domus->dak, drawX, drawY - DAKOFFSET);
+							}	
+							
+							break;
+						}
+							
+						}
+							
+					}	
+					
+					if(veldOverlay == 1)
+						_veld[x][y]->valid = true;
+
+				}		
+	
 	
 	//for(int i=0; i<_lemmings.size(); i++)
 	//	_lemmings[i]->drawYourself();
 
+	_valid = true;
 }
 
 void welt::drawLemmingFrameInTile(int frame, lemPos p)
@@ -113,8 +147,8 @@ void welt::registerLemPos(lemming * lem, lemPos p)
 			throw exceptioneel("lemming tries to register itself where somebody is already registered..");
 	}
 
-	_veld[p.x][p.y]->lem = lem;
-	
+	_veld[p.x][p.y]->lem 	= lem;
+	_veld[p.x][p.y]->valid 	= false;
 	
 }
 
@@ -201,7 +235,7 @@ bool welt::canWalk(lemPos a, lemPos b)
 		}
 	}
 	
-	std::cout << "can walk from " << a.toString() << " to " <<  b.toString() << " in dir "<<xMove<<", "<<yMove<<"? ";
+	//std::cout << "can walk from " << a.toString() << " to " <<  b.toString() << " in dir "<<xMove<<", "<<yMove<<"? ";
 	
 	bool free = cel(b)->free();
 	
@@ -211,7 +245,7 @@ bool welt::canWalk(lemPos a, lemPos b)
 	if(hb != NULL && !hb->isDirOpen(fromA))
 		free = false;
 		
-	std::cout << (free?"yes!":"no!")<< std::endl;
+	//std::cout << (free?"yes!":"no!")<< std::endl;
 	
 	
 	return free;

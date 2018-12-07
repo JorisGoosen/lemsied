@@ -10,13 +10,13 @@ weltVeld::weltVeld()
 
 	if(true)
 	{
-		veld = rand()%3;
+		veld = 16 + rand()%6;
 		
-		if(rand()%6 == 0)			veld = WATER;
+	/*	if(rand()%6 == 0)			veld = WATER;
 		else if(rand()%7 == 0)		overlay = 4 + (rand()%4);
 		else 
 		if(rand()%7 == 0)		
-		domus = new huis();
+		domus = new huis();*/
 	}
 }
 

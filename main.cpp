@@ -72,7 +72,7 @@ int main(int argnum, const char ** args)
 		//	usleep(1000000 * TIMESTEP);
 			wereld->stepTime(TIMESTEP);
 
-			if(!wereld->valid())
+			//if(!wereld->valid())
 				SDL_FillRect(scherm, NULL, SDL_MapRGBA(scherm->format, 0, 0, 0, 255));
 
 			drawwelt();

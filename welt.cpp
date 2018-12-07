@@ -29,7 +29,7 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 			_veld[x][y] = new weltVeld();
 	}
 
-	for(int i=0; i<90; i++)		
+	for(int i=0; i<50; i++)		
 		_lemmings.push_back(new lemming(this));
 }
 
@@ -40,7 +40,7 @@ int welt::yOri(lemPos p)
 
 void welt::draw()
 {
-	lemPos minBB(1 + (offsetX / WELT_X_OFFSET), 1 + (offsetY / TILEDIM)), maxBB(minBB.x + SCREEN_WIDTH - 2, minBB.y + SCREEN_HEIGHT - 2);
+	lemPos minBB(1 + (offsetX / WELT_X_OFFSET), 1 + 2 * (offsetY / TILEDIM)), maxBB(minBB.x + SCREEN_WIDTH - 2, minBB.y + SCREEN_HEIGHT - 2);
 	//lemPos minBB(3, 3), maxBB(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 	for(int veldOverlay = 0; veldOverlay < 2; veldOverlay++)	
 		for(int y=std::max(0, minBB.y); y < std::min(WELT_H, maxBB.y); y++)

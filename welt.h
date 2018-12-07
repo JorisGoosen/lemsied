@@ -13,8 +13,8 @@ class lemming;
  
 double randomDouble(double min, double max);
 
-#define WELT_W 200
-#define WELT_H 200
+#define WELT_W 64
+#define WELT_H 48
 #define WELT_X_OFFSET ((TILEDIM / 4) * 3)
 #define STAGGERED_Y_OFFSET (TILEDIM / 4)
 
@@ -22,7 +22,7 @@ extern size_t SCREEN_WIDTH_PIX;
 extern size_t SCREEN_HEIGHT_PIX;
 
 #define SCREEN_WIDTH 	(SCREEN_WIDTH_PIX / WELT_X_OFFSET)
-#define SCREEN_HEIGHT 	((SCREEN_HEIGHT_PIX / TILEDIM) + (TILEDIM / 4))
+#define SCREEN_HEIGHT 	(((SCREEN_HEIGHT_PIX - STAGGERED_Y_OFFSET) / TILEDIM) * 2)
 
 class welt
 {

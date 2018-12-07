@@ -4,13 +4,14 @@
 #include "tiles.h"
 #include "lempos.h"
 #include "huis.h"
+#include "perlin.h"
 
 class lemming;
 
 class weltVeld
 {
 public:
-	weltVeld();
+	weltVeld(glm::vec3 p);
 	
 	bool free();
 	bool canGo(lemDir d);
@@ -20,6 +21,7 @@ public:
 	tiletype 	overlay;
 	huis * 		domus;
 	bool 		valid = false;
+	glm::vec3 	pos;
 };
 
 

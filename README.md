@@ -1,4 +1,4 @@
 # lemsied
 a simple hexagonal isometric toy
 
-[!screenshot](/Screenshots/001.png)
+![screenshot](/Screenshots/001.png)

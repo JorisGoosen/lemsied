@@ -18,7 +18,7 @@ inline double mix(double A, double B, double ratio)
 class lemming 
 {
 public:
-	lemming(welt * umwelt);
+	lemming(welt * umwelt, int x = -1, int y = -1);
 	int getWorldXOri();
 	int getWorldYOri();
 	

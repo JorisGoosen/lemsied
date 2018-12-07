@@ -17,7 +17,7 @@ weltVeld::weltVeld(glm::vec3 p)
 		veld = deze + 16;
 		if(deze >= 2 && deze < 5 && Perlin::thePerlin()->GetIniqoQuilesNoise(p * glm::vec3(0.00333f, 0.0056f, 0.1230f)) > 0.85f)
 			veld = WATER;
-		else if(deze < 3 && rand()%8 == 0)
+		else if(deze < 3 && rand()%4 == 0)
 			overlay = 4 + rand()%4;
 		else if(deze > 5 && rand()%6 == 0)
 			domus = new huis();

@@ -26,11 +26,15 @@ welt::welt(SDL_Surface * scherm) : _tegels(scherm), offsetX(0), offsetY(0)
 		_veld[x].resize(WELT_H);
 		
 		for(int y=0; y<WELT_H; y++)
+		{
 			_veld[x][y] = new weltVeld(glm::vec3(float(x), float(y), 0));
+			if(_veld[x][y]->domus != NULL)
+				new lemming(this, x, y);
+		}
 	}
 
-	for(int i=0; i<50; i++)		
-		_lemmings.push_back(new lemming(this));
+	//for(int i=0; i<20; i++)		
+	//	_lemmings.push_back(new lemming(this));
 }
 
 int welt::yOri(lemPos p)

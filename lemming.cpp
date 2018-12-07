@@ -3,7 +3,7 @@
 #include "welt.h"
 #include <iostream>
 
-lemming::lemming(welt * umwelt) 
+lemming::lemming(welt * umwelt, int x, int y) 
 	: 	currentState(wacht), 
 		nextState(wacht), 
 		currentFrame(0), 
@@ -11,11 +11,15 @@ lemming::lemming(welt * umwelt)
 //		tileY(2),
 		meinWelt(umwelt)
 {
-	lemPos p;
-	do {	
-		p = lemPos(rand()%WELT_W, rand()%WELT_H); 
+	lemPos p(x, y);
+
+	if(x == -1 || y == -1)
+	{
+		do {	
+			p = lemPos(rand()%WELT_W, rand()%WELT_H); 
+		}
+		while( meinWelt->lemAt(p) != NULL || !meinWelt->landFree(p) );
 	}
-	while( meinWelt->lemAt(p) != NULL || !meinWelt->landFree(p) );
 	
 	myEvents = new eventList(meinWelt->mainEventList());
 	fillTransitions();
